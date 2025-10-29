@@ -1,71 +1,66 @@
 export async function onRequest(context) {
   try {
-    const CLIENT_ID = context.env.SPOTIFY_CLIENT_ID;
-    const CLIENT_SECRET = context.env.SPOTIFY_CLIENT_SECRET;
-    const REFRESH_TOKEN = context.env.SPOTIFY_REFRESH_TOKEN;
+    const CLIENT_ID = context.env.SPOTIFY_CLIENT_ID.trim();
+    const CLIENT_SECRET = context.env.SPOTIFY_CLIENT_SECRET.trim();
+    const REFRESH_TOKEN = context.env.SPOTIFY_REFRESH_TOKEN.trim();
 
-    // Refresh access token
-    const params = new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: REFRESH_TOKEN,
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET
-    });
-
+    // Step 1: Get a new access token using your refresh token
     const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: REFRESH_TOKEN
+      })
     });
 
     if (!tokenResponse.ok) {
-      return new Response(JSON.stringify({ error: 'Failed to get access token' }), {
+      const errText = await tokenResponse.text();
+      return new Response(JSON.stringify({ error: "Failed to get access token", details: errText }), {
         headers: { 'Content-Type': 'application/json' },
         status: 500
       });
     }
 
-    const tokenData = await tokenResponse.json();
-    const accessToken = tokenData.access_token;
+    const { access_token } = await tokenResponse.json();
 
-    // Get currently playing track
-    let trackResponse = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
-      headers: { Authorization: `Bearer ${accessToken}` }
+    // Step 2: Use that access token to get the currently playing track
+    const nowPlayingResponse = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+      headers: { Authorization: `Bearer ${access_token}` }
     });
 
-    let trackData;
-
-    if (trackResponse.status === 204 || !trackResponse.ok) {
-      // Nothing currently playing or API error, fallback to last played track
-      trackResponse = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=1', {
-        headers: { Authorization: `Bearer ${accessToken}` }
+    if (nowPlayingResponse.status === 204 || nowPlayingResponse.status > 400) {
+      // If nothing is playing, get the most recently played track
+      const recentResponse = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=1', {
+        headers: { Authorization: `Bearer ${access_token}` }
       });
+      const recentData = await recentResponse.json();
+      const track = recentData.items?.[0]?.track;
 
-      if (!trackResponse.ok) {
-        return new Response(JSON.stringify({ error: 'Failed to get recently played track' }), {
-          headers: { 'Content-Type': 'application/json' },
-          status: trackResponse.status
-        });
-      }
-
-      const recentData = await trackResponse.json();
-      if (recentData.items && recentData.items.length > 0) {
-        trackData = recentData.items[0].track;
-        trackData.playing = false; // mark as not currently playing
-      } else {
-        // No recent track either
-        return new Response(JSON.stringify({ playing: false }), {
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    } else {
-      trackData = await trackResponse.json();
-      trackData.playing = true; // mark as currently playing
+      return new Response(JSON.stringify({
+        isPlaying: false,
+        title: track?.name || "Unknown Track",
+        artist: track?.artists?.map(a => a.name).join(', ') || "Unknown Artist",
+        album: track?.album?.name || "Unknown Album",
+        albumArt: track?.album?.images?.[0]?.url || null,
+        url: track?.external_urls?.spotify || null
+      }), { headers: { 'Content-Type': 'application/json' } });
     }
 
-    return new Response(JSON.stringify(trackData), {
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Step 3: Parse currently playing data
+    const data = await nowPlayingResponse.json();
+
+    return new Response(JSON.stringify({
+      isPlaying: true,
+      title: data.item?.name,
+      artist: data.item?.artists?.map(a => a.name).join(', '),
+      album: data.item?.album?.name,
+      albumArt: data.item?.album?.images?.[0]?.url,
+      url: data.item?.external_urls?.spotify
+    }), { headers: { 'Content-Type': 'application/json' } });
 
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
