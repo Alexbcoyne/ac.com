@@ -29,25 +29,39 @@ export async function onRequest(context) {
     const accessToken = tokenData.access_token;
 
     // Get currently playing track
-    const trackResponse = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+    let trackResponse = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
-    if (trackResponse.status === 204) {
-      // Nothing is playing
-      return new Response(JSON.stringify({ playing: false }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
+    let trackData;
 
-    if (!trackResponse.ok) {
-      return new Response(JSON.stringify({ error: 'Failed to get currently playing track' }), {
-        headers: { 'Content-Type': 'application/json' },
-        status: trackResponse.status
+    if (trackResponse.status === 204 || !trackResponse.ok) {
+      // Nothing currently playing or API error, fallback to last played track
+      trackResponse = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=1', {
+        headers: { Authorization: `Bearer ${accessToken}` }
       });
-    }
 
-    const trackData = await trackResponse.json();
+      if (!trackResponse.ok) {
+        return new Response(JSON.stringify({ error: 'Failed to get recently played track' }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: trackResponse.status
+        });
+      }
+
+      const recentData = await trackResponse.json();
+      if (recentData.items && recentData.items.length > 0) {
+        trackData = recentData.items[0].track;
+        trackData.playing = false; // mark as not currently playing
+      } else {
+        // No recent track either
+        return new Response(JSON.stringify({ playing: false }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    } else {
+      trackData = await trackResponse.json();
+      trackData.playing = true; // mark as currently playing
+    }
 
     return new Response(JSON.stringify(trackData), {
       headers: { 'Content-Type': 'application/json' }
