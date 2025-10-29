@@ -71,7 +71,7 @@
       color: #fff;
     }
 
-    .about-me, .spotify-section {
+    .section {
       padding: 60px 80px;
       max-width: 900px;
       margin: 0 auto;
@@ -83,11 +83,16 @@
       color: #111;
     }
 
-    #spotify {
+    #spotify, #topTracks {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    #spotify-track {
       display: flex;
       align-items: center;
       gap: 20px;
-      margin-top: 20px;
     }
 
     #spotify img {
@@ -112,12 +117,13 @@
         font-size: 2.4rem;
       }
 
-      .about-me, .spotify-section {
+      .section {
         padding: 40px;
       }
 
-      #spotify {
+      #spotify-track {
         flex-direction: column;
+        text-align: center;
       }
     }
   </style>
@@ -137,18 +143,26 @@
   </div>
 
   <!-- About Me Section -->
-  <div class="about-me">
+  <div class="section about-me">
     <h2>About Me</h2>
     <p>Hello! I'm Alexander, a Computing & IT undergraduate with a passion for technology, coding, and data. I enjoy creating tools and small projects that bring real-time data to life.</p>
   </div>
 
-  <!-- Spotify Section -->
-  <div class="spotify-section">
+  <!-- Currently Playing Section -->
+  <div class="section spotify-section">
     <h2>Currently Listening</h2>
     <div id="spotify">
-      <img id="albumArt" src="" alt="Album Art">
-      <p id="track">Loading...</p>
+      <div id="spotify-track">
+        <img id="albumArt" src="" alt="Album Art">
+        <p id="track">Loading...</p>
+      </div>
     </div>
+  </div>
+
+  <!-- Most Listens Section -->
+  <div class="section spotify-section">
+    <h2>Most Listens</h2>
+    <div id="topTracks">Loading...</div>
   </div>
 
   <script>
@@ -170,8 +184,33 @@
       }
     }
 
+    async function loadTopTracks() {
+      try {
+        const res = await fetch('/api/spotify/top-tracks');
+        const data = await res.json();
+        
+        const container = document.getElementById('topTracks');
+        container.innerHTML = '';
+        
+        if (data.items && data.items.length > 0) {
+          data.items.forEach(track => {
+            const div = document.createElement('div');
+            div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
+            container.appendChild(div);
+          });
+        } else {
+          container.textContent = 'No top tracks available';
+        }
+      } catch (err) {
+        document.getElementById('topTracks').textContent = "Error loading top tracks";
+        console.error(err);
+      }
+    }
+
     loadSpotify();
-    setInterval(loadSpotify, 15000); // refresh every 15s
+    loadTopTracks();
+    setInterval(loadSpotify, 15000);     // refresh currently playing every 15s
+    setInterval(loadTopTracks, 60000);   // refresh top tracks every 60s
   </script>
 
 </body>
