@@ -180,13 +180,7 @@ h2 {
   align-items: flex-start;
 }
 
-.about-portrait {
-  width: 160px;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex: 0 0 160px;
-}
+/* portrait removed from About section (only landing portrait kept) */
 
 .about-text p {
   margin-bottom: 12px;
@@ -201,9 +195,5 @@ h2 {
     text-align: center;
   }
 
-  .about-portrait {
-    width: 60%;
-    max-width: 240px;
-    height: auto;
-  }
+  /* about portrait removed */
 }
