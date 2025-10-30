@@ -2,7 +2,8 @@ export async function onRequest(context) {
   const { env, request } = context;
   const CLIENT_ID = env.SPOTIFY_CLIENT_ID;
   const CLIENT_SECRET = env.SPOTIFY_CLIENT_SECRET;
-  const REFRESH_TOKEN = env.SPOTIFY_REFRESH_TOKEN;
+  // use same refresh token env var as the other handler
+  const REFRESH_TOKEN = env.REFRESH_TOKEN;
 
   const TOKEN_URL = 'https://accounts.spotify.com/api/token';
   const TOP_TRACKS_URL = 'https://api.spotify.com/v1/me/top/tracks';
@@ -31,6 +32,11 @@ export async function onRequest(context) {
     const topRes = await fetch(`${TOP_TRACKS_URL}?limit=5&time_range=${time_range}`, {
       headers: { 'Authorization': `Bearer ${access_token}` }
     });
+
+    if (!topRes.ok) {
+      const errBody = await topRes.json().catch(() => ({}));
+      throw new Error(`Top tracks fetch failed (${topRes.status}): ${JSON.stringify(errBody)}`);
+    }
 
     const topData = await topRes.json();
 
