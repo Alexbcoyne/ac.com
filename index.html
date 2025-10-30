@@ -186,7 +186,7 @@
 
     async function loadTopTracks() {
       try {
-        const res = await fetch('/api/top-tracks');
+        const res = await fetch('/api/spotify/top-tracks');
         const data = await res.json();
         
         const container = document.getElementById('topTracks');
