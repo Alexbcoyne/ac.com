@@ -31,15 +31,71 @@
   <div class="section" id="top-tracks-section">
     <h2>Most Listens</h2>
     <div id="timeRangeButtons">
-      <button data-range="short_term">Last Month</button>
-      <button data-range="medium_term">Last 6 Months</button>
-      <button data-range="long_term">All Time</button>
+      <button data-range="short_term" class="time-btn active">Last Month</button>
+      <button data-range="medium_term" class="time-btn">Last 6 Months</button>
+      <button data-range="long_term" class="time-btn">All Time</button>
     </div>
     <div id="topTracks">Loading...</div>
   </div>
 
-  <!-- JS Modules -->
-  <script src="./functions/api/spotify.js" defer></script>
-  <script src="./functions/api/spotify/top-tracks.js" defer></script>
+  <!-- Front-End JS -->
+  <script>
+    // Fetch currently playing
+    async function loadSpotify() {
+      try {
+        const res = await fetch('/api/spotify');
+        const data = await res.json();
+
+        if (data.nowPlaying?.playing) {
+          document.getElementById('albumArt').src = data.nowPlaying.albumArt;
+          document.getElementById('track').textContent = `${data.nowPlaying.artist} — ${data.nowPlaying.title}`;
+        } else {
+          document.getElementById('track').textContent = "Nothing playing right now";
+          document.getElementById('albumArt').src = '';
+        }
+      } catch (err) {
+        document.getElementById('track').textContent = "Error loading Spotify";
+        console.error(err);
+      }
+    }
+
+    // Fetch top tracks
+    async function updateTopTracks(timeRange = 'short_term') {
+      try {
+        const res = await fetch(`/api/spotify/top-tracks?time_range=${timeRange}`);
+        const data = await res.json();
+
+        const container = document.getElementById('topTracks');
+        container.innerHTML = '';
+
+        if (data.items?.length > 0) {
+          data.items.forEach(track => {
+            const div = document.createElement('div');
+            div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
+            container.appendChild(div);
+          });
+        } else {
+          container.textContent = 'No top tracks available';
+        }
+      } catch (err) {
+        container.textContent = "Error loading top tracks";
+        console.error(err);
+      }
+    }
+
+    // Time range buttons
+    document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#timeRangeButtons button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateTopTracks(btn.dataset.range);
+      });
+    });
+
+    // Initial load + refresh
+    loadSpotify();
+    updateTopTracks();
+    setInterval(loadSpotify, 15000); // refresh currently playing every 15s
+  </script>
 </body>
 </html>
