@@ -1,4 +1,23 @@
 /* Reset and base */
+:root {
+  /* Spacing scale */
+  --space-xs: clamp(0.75rem, 2vw, 1rem);
+  --space-sm: clamp(1rem, 3vw, 1.5rem);
+  --space-md: clamp(1.5rem, 4vw, 2rem);
+  --space-lg: clamp(2rem, 6vw, 4rem);
+  --space-xl: clamp(3rem, 8vw, 5rem);
+  
+  /* Typography scale */
+  --text-sm: clamp(0.875rem, 2vw, 1rem);
+  --text-base: clamp(1rem, 2.5vw, 1.1rem);
+  --text-lg: clamp(1.5rem, 4vw, 2rem);
+  --text-xl: clamp(2rem, 5vw, 3rem);
+  
+  /* Layout */
+  --container-padding: clamp(1rem, 5vw, 5rem);
+  --section-max-width: 64rem; /* 1024px */
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,31 +27,44 @@
 
 body, html {
   height: 100%;
+  min-height: 100vh;
+  /* Use a more modern approach to viewport units that handles mobile browsers better */
+  min-height: 100dvh;
   background-color: #f5f5f5;
+  overflow-x: hidden;
+  line-height: 1.5;
 }
 
 /* Landing Section */
 .container {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  background-color: var(--bg-light, #f5f5f5);
 }
 
 .left {
   flex: 1;
-  /* ensure the left column can contain a full-height image */
   overflow: hidden;
+  position: relative;
   display: flex;
-  justify-content: flex-start; /* keep image to the left */
-  align-items: stretch; /* let image stretch to fill height */
+  justify-content: flex-start;
+  align-items: stretch;
+  min-height: 100%;
 }
 
 .left .portrait {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* crop/cover so image fills the area */
-  border-radius: 0; /* full-bleed on the left column */
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0;
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .right {
@@ -40,33 +72,38 @@ body, html {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 80px;
+  padding: var(--space-xl);
+  position: relative;
+  z-index: 1;
 }
 
 h1 {
-  font-size: 3rem;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: #111;
+  line-height: 1.2;
+  margin-bottom: var(--space-xs);
 }
 
 p {
-  margin-top: 8px;
-  font-size: 1.1rem;
+  margin-top: var(--space-xs);
+  font-size: var(--text-base);
   color: #555;
 }
 
 .email-btn {
   display: inline-block;
-  margin-top: 30px;
-  padding: 12px 28px;
+  margin-top: var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
   border: 1.5px solid #000;
   background: transparent;
   color: #000;
   text-decoration: none;
-  font-size: 1rem;
+  font-size: var(--text-sm);
   border-radius: 6px;
   transition: all 0.3s ease;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .email-btn:hover {
@@ -150,6 +187,18 @@ h2 {
 }
 
 /* Responsive */
+/* Tablet/medium screens */
+@media (max-width: 1024px) {
+  .container {
+    min-height: auto;
+  }
+  
+  .right {
+    padding: var(--space-lg);
+  }
+}
+
+/* Mobile/small screens */
 @media (max-width: 800px) {
   .container {
     flex-direction: column;
@@ -158,15 +207,11 @@ h2 {
   .right {
     align-items: center;
     text-align: center;
-    padding: 40px;
-  }
-
-  h1 {
-    font-size: 2.4rem;
+    padding: var(--space-md);
   }
 
   .section {
-    padding: 40px;
+    padding: var(--space-md);
   }
 
   #spotify-track {
@@ -174,18 +219,36 @@ h2 {
     text-align: center;
   }
 
-  /* On small screens, make the landing portrait smaller and centered */
+  /* Responsive portrait handling */
   .left {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    aspect-ratio: 4/3;
+    min-height: 50vh;
+    min-height: 50dvh;
   }
 
   .left .portrait {
-    width: 80%;
-    height: auto;
-    max-width: 400px;
-    border-radius: 8px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .left {
+    aspect-ratio: 1/1;
+    min-height: 40vh;
+    min-height: 40dvh;
+  }
+  
+  .right {
+    padding: var(--space-sm);
+  }
+  
+  .section {
+    padding: var(--space-sm);
   }
 }
 
