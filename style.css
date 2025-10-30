@@ -1,0 +1,109 @@
+/* Reset & base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: #f5f5f5;
+  color: #111;
+  line-height: 1.5;
+  padding: 40px;
+}
+
+h1, h2 {
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+
+/* Container for sections */
+.section {
+  background-color: #fff;
+  padding: 30px;
+  margin-bottom: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* Currently playing */
+#currently-playing-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#albumArt {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#track {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+/* Top tracks */
+#top-tracks-section {
+}
+
+#timeRangeButtons {
+  margin-bottom: 15px;
+}
+
+#timeRangeButtons button {
+  padding: 8px 16px;
+  margin-right: 8px;
+  font-size: 0.95rem;
+  border: 1.5px solid #000;
+  background: transparent;
+  color: #000;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#timeRangeButtons button:hover {
+  background: #000;
+  color: #fff;
+}
+
+#topTracks div {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  body {
+    padding: 20px;
+  }
+
+  #currently-playing-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  h1 {
+    font-size: 2.4rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+}

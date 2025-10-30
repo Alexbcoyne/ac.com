@@ -4,101 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alexander Coyne | Computing & IT Undergraduate</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body, html { height: 100%; }
-    .container { display: flex; flex-direction: column; min-height: 100vh; }
-    .lander { display: flex; flex: 1; background-color: #f5f5f5; padding: 40px; align-items: center; justify-content: center; gap: 40px; }
-    .lander img { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; }
-    .lander-content h1 { font-size: 3rem; margin-bottom: 8px; }
-    .lander-content p { font-size: 1.2rem; margin-bottom: 20px; }
-    .email-btn { padding: 12px 28px; border: 1.5px solid #000; background: transparent; color: #000; text-decoration: none; font-size: 1rem; border-radius: 6px; transition: all 0.3s ease; }
-    .email-btn:hover { background: #000; color: #fff; }
-    .section { padding: 40px; background: #fff; }
-    #topTracks div { margin-bottom: 6px; }
-    #timeRangeButtons button { margin-right: 10px; padding: 6px 12px; cursor: pointer; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="lander">
-      <img src="portrait.jpg" alt="Alexander Coyne">
-      <div class="lander-content">
-        <h1>Alexander Coyne</h1>
-        <p>Computing & IT Undergraduate</p>
-        <a href="mailto:ac@alexandercoyne.com" class="email-btn">Email me</a>
-      </div>
-    </div>
 
-    <!-- Currently Playing -->
-    <div class="section">
-      <h2>Currently Playing</h2>
-      <img id="albumArt" src="" alt="Album Art" width="100">
-      <p id="track">Loading...</p>
-    </div>
-
-    <!-- Top Tracks -->
-    <div class="section">
-      <h2>Most Listens</h2>
-      <div id="timeRangeButtons">
-        <button data-range="short_term">Last Month</button>
-        <button data-range="medium_term">Last 6 Months</button>
-        <button data-range="long_term">All Time</button>
-      </div>
-      <div id="topTracks">Loading...</div>
-    </div>
+  <!-- Currently Playing -->
+  <div class="section" id="currently-playing-section">
+    <h2>Currently Playing</h2>
+    <img id="albumArt" src="" alt="Album Art" width="100">
+    <p id="track">Loading...</p>
   </div>
 
-  <script>
-    async function loadSpotifyData(timeRange = 'short_term') {
-      try {
-        const res = await fetch(`/api/spotify?time_range=${timeRange}`);
-        const data = await res.json();
+  <!-- Top Tracks -->
+  <div class="section" id="top-tracks-section">
+    <h2>Most Listens</h2>
+    <div id="timeRangeButtons">
+      <button data-range="short_term">Last Month</button>
+      <button data-range="medium_term">Last 6 Months</button>
+      <button data-range="long_term">All Time</button>
+    </div>
+    <div id="topTracks">Loading...</div>
+  </div>
 
-        // Currently Playing
-        const now = data.nowPlaying;
-        const trackEl = document.getElementById('track');
-        const albumEl = document.getElementById('albumArt');
-        if (now.playing) {
-          trackEl.textContent = `${now.artist} — ${now.title}`;
-          albumEl.src = now.albumArt;
-        } else {
-          trackEl.textContent = "Nothing playing right now";
-          albumEl.src = '';
-        }
+  <!-- JS Modules -->
+  <script src="./functions/api/spotify.js" defer></script>
+  <script src="./functions/api/spotify/top-tracks.js" defer></script>
 
-        // Top Tracks
-        const container = document.getElementById('topTracks');
-        container.innerHTML = '';
-        if (data.topTracks && data.topTracks.length > 0) {
-          data.topTracks.forEach(track => {
-            const div = document.createElement('div');
-            div.textContent = `${track.name} — ${track.artists}`;
-            container.appendChild(div);
-          });
-        } else {
-          container.textContent = 'No top tracks available';
-        }
-
-      } catch (err) {
-        console.error(err);
-        document.getElementById('track').textContent = "Error loading Spotify";
-        document.getElementById('topTracks').textContent = "Error loading top tracks";
-      }
-    }
-
-    // Initial load
-    loadSpotifyData();
-
-    // Time range buttons
-    document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        loadSpotifyData(btn.dataset.range);
-      });
-    });
-
-    // Refresh currently playing every 15 seconds
-    setInterval(() => loadSpotifyData(), 15000);
-  </script>
 </body>
 </html>
