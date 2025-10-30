@@ -2,7 +2,7 @@ export async function onRequest(context) {
   const { env } = context;
   const CLIENT_ID = env.SPOTIFY_CLIENT_ID;
   const CLIENT_SECRET = env.SPOTIFY_CLIENT_SECRET;
-  const REFRESH_TOKEN = env.SPOTIFY_REFRESH_TOKEN;
+  const REFRESH_TOKEN = env.REFRESH_TOKEN;
 
   const TOKEN_URL = 'https://accounts.spotify.com/api/token';
   const NOW_PLAYING_URL = 'https://api.spotify.com/v1/me/player/currently-playing';
