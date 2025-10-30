@@ -123,6 +123,30 @@ h2 {
   color: #fff;
 }
 
+/* Prevent buttons from stretching too large on very wide/fullscreen viewports */
+#timeRangeButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+#timeRangeButtons button {
+  /* keep a sensible maximum width and avoid text-wrapping */
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Constrain prominent email CTA so it doesn't grow unexpectedly */
+.email-btn {
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Responsive */
 @media (max-width: 800px) {
   .container {
