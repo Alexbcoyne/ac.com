@@ -132,6 +132,24 @@ h2 {
   gap: 15px;
 }
 
+/* Layout for the two music-related sections side-by-side on wide screens */
+.music-grid {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+  justify-content: center;
+  max-width: var(--section-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.music-grid .section {
+  flex: 1 1 0;
+  padding: var(--space-md) var(--space-sm);
+  box-sizing: border-box;
+  max-width: 48rem;
+}
+
 #spotify-track {
   display: flex;
   align-items: center;
@@ -231,6 +249,13 @@ h2 {
     height: 100%;
     object-fit: cover;
     object-position: center 30%;
+  }
+
+  /* Stack the music sections on small screens */
+  .music-grid {
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: 0 var(--space-md);
   }
 }
 
