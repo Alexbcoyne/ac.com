@@ -1,4 +1,4 @@
-/* Reset & base styles */
+/* Reset and base */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,70 +6,113 @@
   font-family: 'Inter', sans-serif;
 }
 
-body {
+body, html {
+  height: 100%;
   background-color: #f5f5f5;
-  color: #111;
-  line-height: 1.5;
-  padding: 40px;
 }
 
-h1, h2 {
-  font-weight: 600;
+/* Landing Section */
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.left {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.left .portrait {
+  width: 80%;
+  max-width: 400px;
+  border-radius: 8px;
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 80px;
 }
 
 h1 {
   font-size: 3rem;
+  font-weight: 600;
+  color: #111;
+}
+
+p {
+  margin-top: 8px;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.email-btn {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 12px 28px;
+  border: 1.5px solid #000;
+  background: transparent;
+  color: #000;
+  text-decoration: none;
+  font-size: 1rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.email-btn:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* Sections */
+.section {
+  padding: 60px 80px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 h2 {
   font-size: 2rem;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  color: #111;
 }
 
-/* Container for sections */
-.section {
-  background-color: #fff;
-  padding: 30px;
-  margin-bottom: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+/* Spotify */
+#spotify, #topTracks {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-/* Currently playing */
-#currently-playing-section {
+#spotify-track {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
-#albumArt {
-  width: 100px;
-  height: 100px;
+#spotify img {
+  width: 80px;
+  height: 80px;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-#track {
-  font-size: 1.1rem;
-  color: #555;
-}
-
-/* Top tracks */
-#top-tracks-section {
-}
-
+/* Top tracks buttons */
 #timeRangeButtons {
   margin-bottom: 15px;
 }
 
 #timeRangeButtons button {
+  margin-right: 10px;
   padding: 8px 16px;
-  margin-right: 8px;
-  font-size: 0.95rem;
-  border: 1.5px solid #000;
+  border: 1px solid #000;
   background: transparent;
-  color: #000;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -80,30 +123,28 @@ h2 {
   color: #fff;
 }
 
-#topTracks div {
-  margin-bottom: 8px;
-  font-size: 1rem;
-  color: #333;
-}
-
 /* Responsive */
 @media (max-width: 800px) {
-  body {
-    padding: 20px;
+  .container {
+    flex-direction: column;
   }
 
-  #currently-playing-section {
-    flex-direction: column;
+  .right {
     align-items: center;
     text-align: center;
-    gap: 12px;
+    padding: 40px;
   }
 
   h1 {
     font-size: 2.4rem;
   }
 
-  h2 {
-    font-size: 1.6rem;
+  .section {
+    padding: 40px;
+  }
+
+  #spotify-track {
+    flex-direction: column;
+    text-align: center;
   }
 }
