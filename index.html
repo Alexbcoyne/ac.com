@@ -4,7 +4,157 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alexander Coyne | Computing & IT Undergraduate</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body, html {
+      height: 100%;
+      background-color: #f5f5f5;
+    }
+
+    /* Landing Section */
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    .left {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .left .portrait {
+      width: 80%;
+      max-width: 400px;
+      border-radius: 8px;
+    }
+
+    .right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 80px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 600;
+      color: #111;
+    }
+
+    p {
+      margin-top: 8px;
+      font-size: 1.1rem;
+      color: #555;
+    }
+
+    .email-btn {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 28px;
+      border: 1.5px solid #000;
+      background: transparent;
+      color: #000;
+      text-decoration: none;
+      font-size: 1rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .email-btn:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    /* Sections */
+    .section {
+      padding: 60px 80px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #111;
+    }
+
+    /* Spotify */
+    #spotify, #topTracks {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    #spotify-track {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #spotify img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    /* Top tracks buttons */
+    #timeRangeButtons {
+      margin-bottom: 15px;
+    }
+
+    #timeRangeButtons button {
+      margin-right: 10px;
+      padding: 8px 16px;
+      border: 1px solid #000;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #timeRangeButtons button:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    @media (max-width: 800px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .right {
+        align-items: center;
+        text-align: center;
+        padding: 40px;
+      }
+
+      h1 {
+        font-size: 2.4rem;
+      }
+
+      .section {
+        padding: 40px;
+      }
+
+      #spotify-track {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -22,30 +172,33 @@
 
   <!-- Currently Playing Section -->
   <div class="section" id="currently-playing-section">
-    <h2>Currently Playing</h2>
-    <img id="albumArt" src="" alt="Album Art" width="100">
-    <p id="track">Loading...</p>
+    <h2>Currently Listening</h2>
+    <div id="spotify">
+      <div id="spotify-track">
+        <img id="albumArt" src="" alt="Album Art">
+        <p id="track">Loading...</p>
+      </div>
+    </div>
   </div>
 
   <!-- Top Tracks Section -->
   <div class="section" id="top-tracks-section">
     <h2>Most Listens</h2>
     <div id="timeRangeButtons">
-      <button data-range="short_term" class="time-btn active">Last Month</button>
-      <button data-range="medium_term" class="time-btn">Last 6 Months</button>
-      <button data-range="long_term" class="time-btn">All Time</button>
+      <button data-range="short_term">Last Month</button>
+      <button data-range="medium_term">Last 6 Months</button>
+      <button data-range="long_term">All Time</button>
     </div>
     <div id="topTracks">Loading...</div>
   </div>
 
-  <!-- Front-End JS -->
+  <!-- JS -->
   <script>
-    // Fetch currently playing
     async function loadSpotify() {
       try {
         const res = await fetch('/api/spotify');
         const data = await res.json();
-
+        
         if (data.nowPlaying?.playing) {
           document.getElementById('albumArt').src = data.nowPlaying.albumArt;
           document.getElementById('track').textContent = `${data.nowPlaying.artist} — ${data.nowPlaying.title}`;
@@ -59,7 +212,6 @@
       }
     }
 
-    // Fetch top tracks
     async function updateTopTracks(timeRange = 'short_term') {
       try {
         const res = await fetch(`/api/spotify/top-tracks?time_range=${timeRange}`);
@@ -68,7 +220,7 @@
         const container = document.getElementById('topTracks');
         container.innerHTML = '';
 
-        if (data.items?.length > 0) {
+        if (data.items && data.items.length > 0) {
           data.items.forEach(track => {
             const div = document.createElement('div');
             div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
@@ -78,24 +230,20 @@
           container.textContent = 'No top tracks available';
         }
       } catch (err) {
-        container.textContent = "Error loading top tracks";
-        console.error(err);
+        console.error('Top Tracks Error:', err);
+        document.getElementById('topTracks').textContent = "Error loading top tracks";
       }
     }
 
-    // Time range buttons
+    // Handle time range buttons
     document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#timeRangeButtons button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        updateTopTracks(btn.dataset.range);
-      });
+      btn.addEventListener('click', () => updateTopTracks(btn.dataset.range));
     });
 
-    // Initial load + refresh
+    // Initial load
     loadSpotify();
     updateTopTracks();
-    setInterval(loadSpotify, 15000); // refresh currently playing every 15s
+    setInterval(loadSpotify, 15000);     // refresh every 15s
   </script>
 </body>
 </html>
