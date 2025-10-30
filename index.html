@@ -5,213 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alexander Coyne | Computing & IT Undergraduate</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-    }
-
-    body, html {
-      height: 100%;
-      background-color: #f5f5f5;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .lander {
-      display: flex;
-      height: 100vh;
-    }
-
-    .left {
-      flex: 1;
-      background: url('portrait.jpg') center/cover no-repeat;
-    }
-
-    .right {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 0 80px;
-      background-color: #f5f5f5;
-    }
-
-    h1 {
-      font-size: 3rem;
-      font-weight: 600;
-      color: #111;
-    }
-
-    p {
-      margin-top: 8px;
-      font-size: 1.1rem;
-      color: #555;
-    }
-
-    .email-btn {
-      margin-top: 30px;
-      padding: 12px 28px;
-      border: 1.5px solid #000;
-      background: transparent;
-      color: #000;
-      text-decoration: none;
-      font-size: 1rem;
-      border-radius: 6px;
-      transition: all 0.3s ease;
-    }
-
-    .email-btn:hover {
-      background: #000;
-      color: #fff;
-    }
-
-    .section {
-      padding: 60px 80px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    h2 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-      color: #111;
-    }
-
-    #spotify, #topTracks {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    #spotify-track {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    #spotify img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
-    @media (max-width: 800px) {
-      .lander {
-        flex-direction: column;
-      }
-
-      .right {
-        align-items: center;
-        text-align: center;
-        padding: 40px;
-      }
-
-      h1 {
-        font-size: 2.4rem;
-      }
-
-      .section {
-        padding: 40px;
-      }
-
-      #spotify-track {
-        flex-direction: column;
-        text-align: center;
-      }
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body, html { height: 100%; }
+    .container { display: flex; flex-direction: column; min-height: 100vh; }
+    .lander { display: flex; flex: 1; background-color: #f5f5f5; padding: 40px; align-items: center; justify-content: center; gap: 40px; }
+    .lander img { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; }
+    .lander-content h1 { font-size: 3rem; margin-bottom: 8px; }
+    .lander-content p { font-size: 1.2rem; margin-bottom: 20px; }
+    .email-btn { padding: 12px 28px; border: 1.5px solid #000; background: transparent; color: #000; text-decoration: none; font-size: 1rem; border-radius: 6px; transition: all 0.3s ease; }
+    .email-btn:hover { background: #000; color: #fff; }
+    .section { padding: 40px; background: #fff; }
+    #topTracks div { margin-bottom: 6px; }
+    #timeRangeButtons button { margin-right: 10px; padding: 6px 12px; cursor: pointer; }
   </style>
 </head>
 <body>
-
-  <!-- Landing Section -->
   <div class="container">
     <div class="lander">
-      <div class="left"></div>
-      <div class="right">
+      <img src="portrait.jpg" alt="Alexander Coyne">
+      <div class="lander-content">
         <h1>Alexander Coyne</h1>
         <p>Computing & IT Undergraduate</p>
         <a href="mailto:ac@alexandercoyne.com" class="email-btn">Email me</a>
       </div>
     </div>
-  </div>
 
-  <!-- About Me Section -->
-  <div class="section about-me">
-    <h2>About Me</h2>
-    <p>Hello! I'm Alexander, a Computing & IT undergraduate with a passion for technology, coding, and data. I enjoy creating tools and small projects that bring real-time data to life.</p>
-  </div>
+    <!-- Currently Playing -->
+    <div class="section">
+      <h2>Currently Playing</h2>
+      <img id="albumArt" src="" alt="Album Art" width="100">
+      <p id="track">Loading...</p>
+    </div>
 
-  <!-- Currently Playing Section -->
-  <div class="section spotify-section">
-    <h2>Currently Listening to:</h2>
-    <div id="spotify">
-      <div id="spotify-track">
-        <img id="albumArt" src="" alt="Album Art">
-        <p id="track">Loading...</p>
+    <!-- Top Tracks -->
+    <div class="section">
+      <h2>Most Listens</h2>
+      <div id="timeRangeButtons">
+        <button data-range="short_term">Last Month</button>
+        <button data-range="medium_term">Last 6 Months</button>
+        <button data-range="long_term">All Time</button>
       </div>
+      <div id="topTracks">Loading...</div>
     </div>
   </div>
 
-  <!-- Most Listens Section -->
-  <div class="section spotify-section">
-    <h2>Most Listens this Month</h2>
-    <div id="topTracks">Loading...</div>
-  </div>
-
   <script>
-    async function loadSpotify() {
+    async function loadSpotifyData(timeRange = 'short_term') {
       try {
-        const res = await fetch('/api/spotify');
+        const res = await fetch(`/api/spotify?time_range=${timeRange}`);
         const data = await res.json();
-        
-        if (data.playing) {
-          document.getElementById('albumArt').src = data.albumArt;
-          document.getElementById('track').textContent = `${data.artist} — ${data.title}`;
-        } else {
-          document.getElementById('track').textContent = "Nothing playing right now";
-          document.getElementById('albumArt').src = '';
-        }
-      } catch (err) {
-        document.getElementById('track').textContent = "Error loading Spotify";
-        console.error(err);
-      }
-    }
 
-    async function loadTopTracks() {
-      try {
-        const res = await fetch('/api/spotify/top-tracks');
-        const data = await res.json();
-        
+        // Currently Playing
+        const now = data.nowPlaying;
+        const trackEl = document.getElementById('track');
+        const albumEl = document.getElementById('albumArt');
+        if (now.playing) {
+          trackEl.textContent = `${now.artist} — ${now.title}`;
+          albumEl.src = now.albumArt;
+        } else {
+          trackEl.textContent = "Nothing playing right now";
+          albumEl.src = '';
+        }
+
+        // Top Tracks
         const container = document.getElementById('topTracks');
         container.innerHTML = '';
-        
-        if (data.items && data.items.length > 0) {
-          data.items.forEach(track => {
+        if (data.topTracks && data.topTracks.length > 0) {
+          data.topTracks.forEach(track => {
             const div = document.createElement('div');
-            div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
+            div.textContent = `${track.name} — ${track.artists}`;
             container.appendChild(div);
           });
         } else {
           container.textContent = 'No top tracks available';
         }
+
       } catch (err) {
-        document.getElementById('topTracks').textContent = "Error loading top tracks";
         console.error(err);
+        document.getElementById('track').textContent = "Error loading Spotify";
+        document.getElementById('topTracks').textContent = "Error loading top tracks";
       }
     }
 
-    loadSpotify();
-    loadTopTracks();
-    setInterval(loadSpotify, 15000);     // refresh currently playing every 15s
-    setInterval(loadTopTracks, 60000);   // refresh top tracks every 60s
-  </script>
+    // Initial load
+    loadSpotifyData();
 
+    // Time range buttons
+    document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        loadSpotifyData(btn.dataset.range);
+      });
+    });
+
+    // Refresh currently playing every 15 seconds
+    setInterval(() => loadSpotifyData(), 15000);
+  </script>
 </body>
 </html>

@@ -1,86 +1,80 @@
-export async function onRequestGet(context) {
-  const { env } = context;
+export async function onRequest(context) {
+  const CLIENT_ID = context.env.SPOTIFY_CLIENT_ID;
+  const CLIENT_SECRET = context.env.SPOTIFY_CLIENT_SECRET;
+  const REFRESH_TOKEN = context.env.SPOTIFY_REFRESH_TOKEN;
 
-  const CLIENT_ID = env.SPOTIFY_CLIENT_ID;
-  const CLIENT_SECRET = env.SPOTIFY_CLIENT_SECRET;
-  const REFRESH_TOKEN = env.REFRESH_TOKEN;
+  function base64Encode(str) {
+    return Buffer.from(str).toString('base64');
+  }
 
   try {
-    // Step 1: Refresh access token
-    const tokenResponse = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
+    // 1️⃣ Refresh access token
+    const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
       headers: {
-        Authorization: "Basic " + btoa(`${CLIENT_ID}:${CLIENT_SECRET}`),
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Authorization': 'Basic ' + base64Encode(`${CLIENT_ID}:${CLIENT_SECRET}`),
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: REFRESH_TOKEN,
-      }),
+        grant_type: 'refresh_token',
+        refresh_token: REFRESH_TOKEN
+      })
     });
 
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text();
-      console.error("Spotify token error:", errorText);
-      return new Response(
-        JSON.stringify({
-          error: "Failed to get access token",
-          details: errorText,
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) {
+      return new Response(JSON.stringify({ error: 'Failed to get access token', details: tokenData }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
+    const accessToken = tokenData.access_token;
 
-    const { access_token } = await tokenResponse.json();
+    // Parse time_range from query parameter
+    const url = new URL(context.request.url);
+    const timeRange = url.searchParams.get('time_range') || 'short_term';
 
-    // Step 2: Fetch currently playing track
-    const nowPlaying = await fetch(
-      "https://api.spotify.com/v1/me/player/currently-playing",
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
+    // 2️⃣ Currently Playing
+    const nowRes = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+
+    let nowPlaying = { playing: false };
+    if (nowRes.status === 200) {
+      const nowData = await nowRes.json();
+      if (nowData && nowData.item) {
+        nowPlaying = {
+          playing: nowData.is_playing,
+          artist: nowData.item.artists.map(a => a.name).join(', '),
+          title: nowData.item.name,
+          albumArt: nowData.item.album.images[0]?.url || ''
+        };
       }
-    );
-
-    // 204 means nothing is playing
-    if (nowPlaying.status === 204) {
-      return new Response(
-        JSON.stringify({ playing: false }),
-        { headers: { "Content-Type": "application/json" } }
-      );
     }
 
-    if (!nowPlaying.ok) {
-      const errorText = await nowPlaying.text();
-      console.error("Spotify API error:", errorText);
-      return new Response(
-        JSON.stringify({
-          error: "Spotify API request failed",
-          details: errorText,
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    // 3️⃣ Top Tracks
+    const topRes = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=5&time_range=${timeRange}`, {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
 
-    const song = await nowPlaying.json();
+    const topDataRaw = await topRes.json();
+    const topTracks = (topDataRaw.items || []).map(track => ({
+      name: track.name,
+      artists: track.artists.map(a => a.name).join(', ')
+    }));
 
-    // Step 3: Return JSON data
-    return new Response(
-      JSON.stringify({
-        playing: true,
-        artist: song.item?.artists?.map(a => a.name).join(", ") || "Unknown Artist",
-        title: song.item?.name || "Unknown Track",
-        albumArt: song.item?.album?.images?.[0]?.url || "",
-      }),
-      { headers: { "Content-Type": "application/json" } }
-    );
+    // 4️⃣ Return combined JSON
+    return new Response(JSON.stringify({
+      nowPlaying,
+      topTracks
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
 
   } catch (err) {
-    console.error("Spotify worker exception:", err);
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: 'Server error', details: err.toString() }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
