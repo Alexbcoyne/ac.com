@@ -20,15 +20,19 @@ body, html {
 
 .left {
   flex: 1;
+  /* ensure the left column can contain a full-height image */
+  overflow: hidden;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start; /* keep image to the left */
+  align-items: stretch; /* let image stretch to fill height */
 }
 
 .left .portrait {
-  width: 80%;
-  max-width: 400px;
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* crop/cover so image fills the area */
+  border-radius: 0; /* full-bleed on the left column */
+  display: block;
 }
 
 .right {
@@ -139,12 +143,10 @@ h2 {
   text-overflow: ellipsis;
 }
 
-/* Constrain prominent email CTA so it doesn't grow unexpectedly */
+/* Email CTA: let it size to its content (padding controls visual width) */
 .email-btn {
-  max-width: 320px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap; /* keep on one line */
+  /* no max-width so it fits its text naturally */
 }
 
 /* Responsive */
@@ -170,6 +172,20 @@ h2 {
   #spotify-track {
     flex-direction: column;
     text-align: center;
+  }
+
+  /* On small screens, make the landing portrait smaller and centered */
+  .left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .left .portrait {
+    width: 80%;
+    height: auto;
+    max-width: 400px;
+    border-radius: 8px;
   }
 }
 
