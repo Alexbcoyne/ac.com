@@ -134,14 +134,16 @@ h2 {
 #spotify-track {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--space-md);
+  margin: var(--space-sm) 0;
 }
 
 #spotify img {
-  width: 80px;
-  height: 80px;
+  width: clamp(120px, 20vw, 200px);
+  height: clamp(120px, 20vw, 200px);
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* Top tracks buttons */
