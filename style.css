@@ -94,7 +94,7 @@ p {
 .email-btn {
   display: inline-block;
   margin-top: var(--space-md);
-  padding: var(--space-xs) var(--space-sm);
+  padding: 0.75rem 1.25rem;
   border: 1.5px solid #000;
   background: transparent;
   color: #000;
@@ -104,6 +104,7 @@ p {
   transition: all 0.3s ease;
   cursor: pointer;
   white-space: nowrap;
+  width: fit-content;
 }
 
 .email-btn:hover {
@@ -182,11 +183,7 @@ h2 {
   text-overflow: ellipsis;
 }
 
-/* Email CTA: let it size to its content (padding controls visual width) */
-.email-btn {
-  white-space: nowrap; /* keep on one line */
-  /* no max-width so it fits its text naturally */
-}
+/* Email button styles consolidated above */
 
 /* Responsive */
 /* Tablet/medium screens */
