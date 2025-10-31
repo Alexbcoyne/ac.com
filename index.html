@@ -133,10 +133,82 @@
 
     document.getElementById("runName").textContent = data.name;
     document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
+  
+  // Initialize Map if not already
+    if (!map) {
+      mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+      map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-73.935242, 40.730610], // default NYC coords
+        zoom: 12
+      });
+    }
+
+    // Remove existing route layer
+    if (map.getLayer(routeLayerId)) {
+      map.removeLayer(routeLayerId);
+      map.removeSource(routeLayerId);
+    }
+
+    if (data.polyline) {
+      const coordinates = decodePolyline(data.polyline); // returns [lng, lat] pairs
+      map.fitBounds(coordinates.reduce((bounds, coord) => bounds.extend(coord), new mapboxgl.LngLatBounds(coordinates[0], coordinates[0])), {
+        padding: 40
+      });
+
+      map.addSource(routeLayerId, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates
+          }
+        }
+      });
+
+      map.addLayer({
+        id: routeLayerId,
+        type: 'line',
+        source: routeLayerId,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#FF0000', 'line-width': 4 }
+      });
+    }
+  
   } catch (err) {
     console.error(err);
     document.getElementById("runName").textContent = "Error loading run data";
   }
+}
+
+// Polyline decoder (Google/Strava encoded polyline to [lng, lat] array)
+function decodePolyline(str, precision = 5) {
+  let index = 0, lat = 0, lng = 0, coordinates = [];
+  const factor = Math.pow(10, precision);
+
+  while (index < str.length) {
+    let result = 1, shift = 0, b;
+    do {
+      b = str.charCodeAt(index++) - 63 - 1;
+      result += b << shift;
+      shift += 5;
+    } while (b >= 0x1f);
+    lat += (result & 1 ? ~(result >> 1) : result >> 1);
+
+    result = 1;
+    shift = 0;
+    do {
+      b = str.charCodeAt(index++) - 63 - 1;
+      result += b << shift;
+      shift += 5;
+    } while (b >= 0x1f);
+    lng += (result & 1 ? ~(result >> 1) : result >> 1);
+
+    coordinates.push([lng / factor, lat / factor]);
+  }
+  return coordinates;
 }
 
 loadStrava();
