@@ -42,8 +42,8 @@
     <h2>Currently Listening</h2>
     <div id="spotify">
       <div id="spotify-track">
-        <img id="albumArt" src="" alt="Album Art">
-        <p id="track">Loading...</p>
+  <img id="albumArt" src="" alt="Album Art">
+  <p id="track" aria-live="polite">Loading...</p>
       </div>
     </div>
   </div>
@@ -73,23 +73,44 @@
 
   <!-- JS -->
   <script>
+    // Ensure broken/missing album art falls back to the no-music placeholder
+    const __albumEl = document.getElementById('albumArt');
+    if (__albumEl) {
+      __albumEl.onerror = () => {
+        __albumEl.src = 'no-music.png';
+        __albumEl.classList.add('no-music');
+        __albumEl.alt = 'No music playing';
+      };
+    }
+    // Map and route layer placeholders used by loadStrava
+    let map;
+    const routeLayerId = 'route-layer';
     async function loadSpotify() {
       try {
         const res = await fetch('/api/spotify');
         const data = await res.json();
         
         if (data.nowPlaying?.playing) {
-          document.getElementById('albumArt').src = data.nowPlaying.albumArt;
+          const albumEl = document.getElementById('albumArt');
+          albumEl.src = data.nowPlaying.albumArt;
+          albumEl.alt = `${data.nowPlaying.title} album art`;
           document.getElementById('track').textContent = `${data.nowPlaying.artist} — ${data.nowPlaying.title}`;
-          document.getElementById('albumArt').classList.remove('no-music');
+          albumEl.classList.remove('no-music');
         } else {
+          const albumEl = document.getElementById('albumArt');
           document.getElementById('track').textContent = "Nothing playing right now";
-          document.getElementById('albumArt').src = 'no-music.png';
-          document.getElementById('albumArt').classList.add('no-music');
+          albumEl.src = 'no-music.png';
+          albumEl.alt = 'No music playing';
+          albumEl.classList.add('no-music');
         }
       } catch (err) {
-        document.getElementById('track').textContent = "Error loading Spotify";
-        console.error(err);
+          const albumEl = document.getElementById('albumArt');
+          document.getElementById('track').textContent = "Error loading Spotify";
+          if (albumEl) {
+            albumEl.src = 'no-music.png';
+            albumEl.classList.add('no-music');
+          }
+          console.error(err);
       }
     }
 
@@ -211,20 +232,18 @@ function decodePolyline(str, precision = 5) {
   return coordinates;
 }
 
-loadStrava();
-setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
+  loadStrava();
+  setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
 
     // Handle time range buttons
     document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
       btn.addEventListener('click', () => updateTopTracks(btn.dataset.range));
     });
 
-    // Initial load
-    loadSpotify();
-    updateTopTracks();
-    setInterval(loadSpotify, 15000); // refresh every 15s
-    loadStrava();
-    setInterval(loadStrava, 60 * 60 * 10); // refresh every hour
+  // Initial load
+  loadSpotify();
+  updateTopTracks();
+  setInterval(loadSpotify, 15000); // refresh every 15s
   </script>
 </body>
 </html>
