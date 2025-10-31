@@ -147,9 +147,9 @@ setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
     // Initial load
     loadSpotify();
     updateTopTracks();
-    setInterval(loadSpotify, 15000);
+    setInterval(loadSpotify, 15000); // refresh every 15s
     loadStrava();
-    setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
+    setInterval(loadStrava, 60 * 60 * 10); // refresh every hour
   </script>
 </body>
 </html>
