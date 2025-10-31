@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alexander Coyne | Computing & IT Undergraduate</title>
   <link rel="stylesheet" href="style.css">
-  <link href='https://api.mapbox.com/mapbox-gl-js/v2.17.0/mapbox-gl.css' rel='stylesheet' />
-  <script src='https://api.mapbox.com/mapbox-gl-js/v2.17.0/mapbox-gl.js'></script>
+  <!-- Leaflet (OpenStreetMap) will be lazy-loaded when the map enters the viewport -->
 </head>
 <body>
 
@@ -82,9 +81,30 @@
         __albumEl.alt = 'No music playing';
       };
     }
-    // Map and route layer placeholders used by loadStrava
-    let map;
-    const routeLayerId = 'route-layer';
+  // Map and route layer placeholders used by loadStrava
+  let map;
+  let routeLayer = null;
+  const routeLayerId = 'route-layer';
+    
+    // Lazy-load Leaflet JS and CSS when needed (free OpenStreetMap tiles)
+    function loadLeafletLib() {
+      if (typeof window.L !== 'undefined') return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        const css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        css.onload = () => {};
+        css.onerror = () => {};
+        document.head.appendChild(css);
+
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = (e) => reject(new Error('Failed to load Leaflet script'));
+        document.head.appendChild(script);
+      });
+    }
     async function loadSpotify() {
       try {
         const res = await fetch('/api/spotify');
@@ -155,47 +175,66 @@
     document.getElementById("runName").textContent = data.name;
     document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
   
-  // Initialize Map if not already
-    if (!map) {
-      mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
-      map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [-73.935242, 40.730610], // default NYC coords
-        zoom: 12
-      });
-    }
+  // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
+    const mapEl = document.getElementById('map');
+    if (data.polyline && mapEl) {
+      const renderRoute = async () => {
+        try {
+          if (typeof L === 'undefined') {
+            await loadLeafletLib();
+          }
 
-    // Remove existing route layer
-    if (map.getLayer(routeLayerId)) {
-      map.removeLayer(routeLayerId);
-      map.removeSource(routeLayerId);
-    }
+          if (!map) {
+            map = L.map('map');
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+            }).addTo(map);
+          }
 
-    if (data.polyline) {
-      const coordinates = decodePolyline(data.polyline); // returns [lng, lat] pairs
-      map.fitBounds(coordinates.reduce((bounds, coord) => bounds.extend(coord), new mapboxgl.LngLatBounds(coordinates[0], coordinates[0])), {
-        padding: 40
-      });
+          // Remove existing route layer if present
+          if (routeLayer) {
+            try { map.removeLayer(routeLayer); } catch (e) {}
+            routeLayer = null;
+          }
 
-      map.addSource(routeLayerId, {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates
+          const coordinates = decodePolyline(data.polyline);
+          // decodePolyline returns [lng, lat]; Leaflet expects [lat, lng]
+          const latlngs = coordinates.map(c => [c[1], c[0]]);
+
+          try {
+            routeLayer = L.polyline(latlngs, { color: '#FF0000', weight: 4 }).addTo(map);
+            map.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+          } catch (e) { console.warn('Could not draw route', e); }
+        } catch (e) {
+          console.warn('Leaflet load/init failed', e);
+          if (mapEl) {
+            mapEl.style.display = 'none';
+            const msg = document.createElement('p');
+            msg.textContent = 'Map is unavailable';
+            mapEl.parentNode.insertBefore(msg, mapEl);
           }
         }
-      });
+      };
 
-      map.addLayer({
-        id: routeLayerId,
-        type: 'line',
-        source: routeLayerId,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#FF0000', 'line-width': 4 }
-      });
+      // If the map element is already visible, render immediately, otherwise wait until it scrolls into view
+      const rect = mapEl.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        renderRoute();
+      } else if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries, observer) => {
+          if (entries[0].isIntersecting) {
+            observer.disconnect();
+            renderRoute();
+          }
+        }, { rootMargin: '200px' });
+        obs.observe(mapEl);
+      } else {
+        // fallback: load after a short delay
+        setTimeout(renderRoute, 1500);
+      }
+    } else {
+      // No polyline or no map element — hide map
+      if (mapEl) mapEl.style.display = 'none';
     }
   
   } catch (err) {
