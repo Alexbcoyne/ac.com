@@ -57,6 +57,7 @@ export async function onRequest(context) {
       : "N/A";
 
     return new Response(JSON.stringify({
+      id: latest.id,
       name: latest.name,
       distance: distanceKm,
       pace: paceMinPerKm,
