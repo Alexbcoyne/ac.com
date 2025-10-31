@@ -59,6 +59,15 @@
 
   </div>
 
+  <!-- Latest Run Section -->
+  <div class="section strava-section">
+    <h2>Latest Run</h2>
+    <div id="strava">
+      <p id="runName">Loading...</p>
+      <p id="runStats"></p>
+    </div>
+  </div>
+
   <!-- JS -->
   <script>
     async function loadSpotify() {
@@ -109,6 +118,26 @@
         document.getElementById('topTracks').textContent = "Error loading top tracks";
       }
     }
+    async function loadStrava() {
+  try {
+    const res = await fetch("/api/strava");
+    const data = await res.json();
+
+    if (data.error) {
+      document.getElementById("runName").textContent = "Error loading Strava data";
+      return;
+    }
+
+    document.getElementById("runName").textContent = data.name;
+    document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
+  } catch (err) {
+    console.error(err);
+    document.getElementById("runName").textContent = "Error loading run data";
+  }
+}
+
+loadStrava();
+setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
 
     // Handle time range buttons
     document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
@@ -118,7 +147,9 @@
     // Initial load
     loadSpotify();
     updateTopTracks();
-    setInterval(loadSpotify, 15000);     // refresh every 15s
+    setInterval(loadSpotify, 15000);
+    loadStrava();
+    setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
   </script>
 </body>
 </html>
