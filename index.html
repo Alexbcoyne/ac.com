@@ -69,9 +69,11 @@
         if (data.nowPlaying?.playing) {
           document.getElementById('albumArt').src = data.nowPlaying.albumArt;
           document.getElementById('track').textContent = `${data.nowPlaying.artist} — ${data.nowPlaying.title}`;
+          document.getElementById('albumArt').classList.remove('no-music');
         } else {
           document.getElementById('track').textContent = "Nothing playing right now";
-          document.getElementById('albumArt').src = '';
+          document.getElementById('albumArt').src = 'no-music.png';
+          document.getElementById('albumArt').classList.add('no-music');
         }
       } catch (err) {
         document.getElementById('track').textContent = "Error loading Spotify";
