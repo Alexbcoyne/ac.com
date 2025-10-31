@@ -66,7 +66,6 @@
     <div id="strava">
       <p id="runName">Loading...</p>
       <p id="runStats"></p>
-      <p id="runDate"></p>
       <div id="map" style="width: 100%; height: 400px; margin-top: 20px;"></div>
     </div>
   </div>
@@ -176,28 +175,35 @@
     const runNameEl = document.getElementById("runName");
     // If the API returned an activity id, link to the Strava activity; otherwise just show the name
     runNameEl.textContent = '';
+    
+    // Create run name element (link if id exists)
+    const nameSpan = document.createElement('span');
     if (data.id) {
       const a = document.createElement('a');
       a.href = `https://www.strava.com/activities/${data.id}`;
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
       a.textContent = data.name || 'View activity';
-      runNameEl.appendChild(a);
+      nameSpan.appendChild(a);
     } else {
-      runNameEl.textContent = data.name;
+      nameSpan.textContent = data.name;
     }
-    document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
-    const runDateEl = document.getElementById('runDate');
+    runNameEl.appendChild(nameSpan);
+
+    // Add date inline after the name
     if (data.date) {
       try {
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'date';
         const d = new Date(data.date);
-        runDateEl.textContent = d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+        dateSpan.textContent = d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+        runNameEl.appendChild(dateSpan);
       } catch (e) {
-        runDateEl.textContent = data.date;
+        console.warn('Failed to format date:', e);
       }
-    } else {
-      runDateEl.textContent = '';
     }
+
+    document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
 
   // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
     const mapEl = document.getElementById('map');

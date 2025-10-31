@@ -163,6 +163,7 @@ h2 {
   object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 /* No music placeholder styling */
@@ -198,6 +199,128 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+/* Strava section styling */
+#runName {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-xs);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+#runName a {
+  color: #111;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+#runName a:hover {
+  text-decoration: underline;
+}
+
+#runName a::after {
+  content: "↗";
+  font-size: 0.85em;
+  display: inline-block;
+  margin-left: 0.2rem;
+  transition: transform 0.2s ease;
+}
+
+#runName a:hover::after {
+  transform: translate(1px, -1px);
+}
+
+#runName .date {
+  color: #666;
+  font-size: 0.9em;
+  font-weight: normal;
+}
+}
+
+/* Strava section styling */
+#runName {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-xs);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+#runName a {
+  color: #111;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+#runName a:hover {
+  text-decoration: underline;
+}
+
+#runName a::after {
+  content: "↗";
+  font-size: 0.85em;
+  display: inline-block;
+  margin-left: 0.2rem;
+  transition: transform 0.2s ease;
+}
+
+#runName a:hover::after {
+  transform: translate(1px, -1px);
+}
+
+#runName .date {
+  color: #666;
+  font-size: 0.9em;
+  font-weight: normal;
+}
+
+/* Strava section styling */
+#runName {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-xs);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+#runName a {
+  color: #111;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+#runName a:hover {
+  text-decoration: underline;
+}
+
+#runName a::after {
+  content: "↗";
+  font-size: 0.85em;
+  display: inline-block;
+  margin-left: 0.2rem;
+  transition: transform 0.2s ease;
+}
+
+#runName a:hover::after {
+  transform: translate(1px, -1px);
+}
+
+#runName .date {
+  color: #666;
+  font-size: 0.9em;
+  font-weight: normal;
+}
   align-items: center;
 }
 
