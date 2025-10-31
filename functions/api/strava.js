@@ -61,7 +61,8 @@ export async function onRequest(context) {
       distance: distanceKm,
       pace: paceMinPerKm,
       heartRate: latest.average_heartrate || "N/A",
-      date: latest.start_date_local
+      date: latest.start_date_local,
+      polyline: latest.map?.summary_polyline || null
     }), {
       headers: { "Content-Type": "application/json" }
     });
