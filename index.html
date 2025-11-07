@@ -20,6 +20,9 @@
         <div class="buttons">
           <a href="mailto:ac@alexandercoyne.com" class="btn">Email me</a>
           <a href="https://www.linkedin.com/in/alexander-coyne-1a7752160/" target="_blank" rel="noopener noreferrer" class="btn">LinkedIn</a>
+          <button class="btn theme-toggle" aria-label="Toggle dark mode">
+            <span class="theme-toggle-text">🌜</span>
+          </button>
         </div>
       </div>
     </div>
@@ -318,6 +321,32 @@ function decodePolyline(str, precision = 5) {
   loadSpotify();
   updateTopTracks();
   setInterval(loadSpotify, 15000); // refresh every 15s
+
+  // Theme toggling
+  const themeToggle = document.querySelector('.theme-toggle');
+  
+  // Check for saved theme preference or system preference
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // Set initial theme
+  if (savedTheme) {
+    document.documentElement.dataset.theme = savedTheme;
+    if (savedTheme === 'dark') {
+      themeToggle.querySelector('.theme-toggle-text').textContent = '🌞';
+    }
+  } else if (prefersDark) {
+    document.documentElement.dataset.theme = 'dark';
+    themeToggle.querySelector('.theme-toggle-text').textContent = '🌞';
+  }
+
+  // Theme toggle handler
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.dataset.theme === 'dark';
+    document.documentElement.dataset.theme = isDark ? 'light' : 'dark';
+    themeToggle.querySelector('.theme-toggle-text').textContent = isDark ? '🌜' : '🌞';
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+  });
   </script>
 </body>
 </html>

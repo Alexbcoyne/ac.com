@@ -9,6 +9,7 @@ My personal site — a blend of tech, creativity and self-expression.
 
 ## 🚀 Roadmap
 - [x] Create Lander
+- [x] Add Dark Mode
 - [x] Add Spotify Features
     - [x] Currently Listening
     - [x] Most Plays

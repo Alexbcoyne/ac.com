@@ -16,6 +16,24 @@
   /* Layout */
   --container-padding: clamp(1rem, 5vw, 5rem);
   --section-max-width: 64rem; /* 1024px */
+
+  /* Color scheme - Light mode by default */
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --border-color: #000000;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode colors */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --border-color: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -35,9 +53,11 @@ body {
   padding: 0;
   height: 100vh;
   height: 100dvh;
-  background-color: #f5f5f5;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   line-height: 1.5;
   overflow: hidden; /* Prevent double scrollbars */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .snap-scroll-container {
@@ -55,20 +75,22 @@ body {
   height: 100vh; /* Use fixed height for better snap */
   height: 100dvh;
   position: relative;
-  background-color: var(--bg-light, #f5f5f5);
+  background-color: var(--bg-primary);
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
 
 /* Content wrapper for all sections after landing */
 .content-sections {
-  background: #f5f5f5;
+  background: var(--bg-primary);
 }
 
 .section {
   scroll-snap-align: start;
   min-height: 100vh;
   min-height: 100dvh;
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .left {
@@ -106,7 +128,7 @@ body {
 h1 {
   font-size: var(--text-xl);
   font-weight: 600;
-  color: #111;
+  color: var(--text-primary);
   line-height: 1.2;
   margin-bottom: var(--space-xs);
 }
@@ -114,7 +136,8 @@ h1 {
 p {
   margin-top: var(--space-xs);
   font-size: var(--text-base);
-  color: #555;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .buttons {
@@ -127,9 +150,9 @@ p {
 .btn {
   display: inline-block;
   padding: 0.75rem 1.25rem;
-  border: 1.5px solid #000;
+  border: 1.5px solid var(--border-color);
   background: transparent;
-  color: #000;
+  color: var(--text-primary);
   text-decoration: none;
   font-size: var(--text-sm);
   border-radius: 6px;
@@ -140,8 +163,26 @@ p {
 }
 
 .btn:hover {
-  background: #000;
-  color: #fff;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* Theme toggle specific styles */
+.theme-toggle {
+  padding: 0.75rem;
+  font-size: 1.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+}
+
+.theme-toggle-text {
+  transition: transform 0.3s ease;
+}
+
+[data-theme="dark"] .theme-toggle-text {
+  transform: rotate(180deg);
 }
 
 /* Sections */
@@ -154,7 +195,7 @@ p {
 h2 {
   font-size: 2rem;
   margin-bottom: 20px;
-  color: #111;
+  color: var(--text-primary);
 }
 
 /* Spotify */
@@ -180,6 +221,7 @@ h2 {
   padding: var(--space-md) var(--space-sm);
   box-sizing: border-box;
   max-width: 48rem;
+  background-color: var(--bg-primary);
 }
 
 #spotify-track {
@@ -194,7 +236,7 @@ h2 {
   height: clamp(120px, 20vw, 200px);
   object-fit: cover;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px var(--shadow-color);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -202,7 +244,7 @@ h2 {
 #spotify img.no-music {
   object-fit: contain;
   padding: 1.5rem;
-  background-color: #f0f0f0;
+  background-color: var(--bg-secondary);
   opacity: 0.7;
 }
 
@@ -214,16 +256,17 @@ h2 {
 #timeRangeButtons button {
   margin-right: 10px;
   padding: 8px 16px;
-  border: 1px solid #000;
+  border: 1px solid var(--border-color);
   background: transparent;
+  color: var(--text-primary);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 #timeRangeButtons button:hover {
-  background: #000;
-  color: #fff;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 /* Prevent buttons from stretching too large on very wide/fullscreen viewports */
@@ -283,7 +326,7 @@ h2 {
 }
 
 #runName a {
-  color: #111;
+  color: var(--text-primary);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -308,50 +351,9 @@ h2 {
 }
 
 #runName .date {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.9em;
   font-weight: normal;
-}
-
-/* Strava section styling */
-#runName {
-  font-size: var(--text-base);
-  margin-bottom: var(--space-xs);
-  display: flex;
-  gap: var(--space-xs);
-  align-items: center;
-}
-
-#runName a {
-  color: #111;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-weight: 500;
-}
-
-#runName a:hover {
-  text-decoration: underline;
-}
-
-#runName a::after {
-  content: "↗";
-  font-size: 0.85em;
-  display: inline-block;
-  margin-left: 0.2rem;
-  transition: transform 0.2s ease;
-}
-
-#runName a:hover::after {
-  transform: translate(1px, -1px);
-}
-
-#runName .date {
-  color: #666;
-  font-size: 0.9em;
-  font-weight: normal;
-  align-items: center;
 }
 
 #timeRangeButtons button {
@@ -444,12 +446,15 @@ h2 {
   align-items: flex-start;
 }
 
-/* portrait removed from About section (only landing portrait kept) */
+.section.about .about-text {
+  color: var(--text-secondary);
+}
 
-.about-text p {
+.section.about .about-text p {
   margin-bottom: 12px;
   line-height: 1.6;
-  color: #444;
+  color: inherit;
+  transition: color 0.3s ease;
 }
 
 @media (max-width: 800px) {
@@ -458,6 +463,4 @@ h2 {
     align-items: center;
     text-align: center;
   }
-
-  /* about portrait removed */
 }
