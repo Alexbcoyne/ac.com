@@ -91,9 +91,15 @@ p {
   color: #555;
 }
 
-.email-btn {
-  display: inline-block;
+.buttons {
+  display: flex;
+  gap: var(--space-sm);
   margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
   padding: 0.75rem 1.25rem;
   border: 1.5px solid #000;
   background: transparent;
@@ -107,7 +113,7 @@ p {
   width: fit-content;
 }
 
-.email-btn:hover {
+.btn:hover {
   background: #000;
   color: #fff;
 }
