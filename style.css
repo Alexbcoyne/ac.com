@@ -26,23 +26,26 @@
 }
 
 html {
-  scroll-behavior: smooth;
   height: 100%;
-  /* Ensure scrolling is smooth in browsers that support it */
-  @media (prefers-reduced-motion: no-preference) {
-    scroll-behavior: smooth;
-  }
+  scroll-behavior: smooth;
 }
 
 body {
-  height: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  height: 100dvh;
   background-color: #f5f5f5;
-  overflow-x: hidden;
   line-height: 1.5;
-  scroll-snap-type: y mandatory;
+  overflow: hidden; /* Prevent double scrollbars */
+}
+
+.snap-scroll-container {
+  height: 100vh;
+  height: 100dvh;
   overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
 }
 
 /* Landing Section */
@@ -58,8 +61,14 @@ body {
 }
 
 /* Content wrapper for all sections after landing */
+.content-sections {
+  background: #f5f5f5;
+}
+
 .section {
   scroll-snap-align: start;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .left {
