@@ -28,7 +28,7 @@ My personal site — a blend of tech, creativity and self-expression.
 
 ## 🧠 Stack
 - **Frontend:** HTML, CSS, JS  
-- **APIs:** Spotify, Strava, Mapbox  
+- **APIs:** Spotify, Strava, Leaflet  
 - **Hosting:** Cloudflare Pages  
 
 ## 🏁 Vision
