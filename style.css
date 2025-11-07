@@ -25,24 +25,41 @@
   font-family: 'Inter', sans-serif;
 }
 
-body, html {
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+  /* Ensure scrolling is smooth in browsers that support it */
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
   height: 100%;
   min-height: 100vh;
-  /* Use a more modern approach to viewport units that handles mobile browsers better */
   min-height: 100dvh;
   background-color: #f5f5f5;
   overflow-x: hidden;
   line-height: 1.5;
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
 }
 
 /* Landing Section */
 .container {
   display: flex;
   flex-direction: row;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh; /* Use fixed height for better snap */
+  height: 100dvh;
   position: relative;
   background-color: var(--bg-light, #f5f5f5);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Content wrapper for all sections after landing */
+.section {
+  scroll-snap-align: start;
 }
 
 .left {
