@@ -53,31 +53,42 @@ export async function onRequest(context) {
     // Calculate run streak
     let streak = 0;
     if (activities.length > 0) {
-      // Start with the most recent day
-      let currentDate = new Date(activities[0].start_date_local);
-      currentDate.setHours(0, 0, 0, 0); // Reset time to start of day
+      // Check if the most recent activity is within the last day
+      const now = new Date();
+      now.setHours(0, 0, 0, 0); // Reset to start of today
+      const mostRecentDate = new Date(activities[0].start_date_local);
+      mostRecentDate.setHours(0, 0, 0, 0);
+      
+      const daysSinceLastRun = Math.floor((now - mostRecentDate) / (1000 * 60 * 60 * 24));
+      
+      // Only count streak if you've run today or yesterday
+      if (daysSinceLastRun <= 1) {
+        // Start counting from the most recent activity
+        let currentDate = new Date(activities[0].start_date_local);
+        currentDate.setHours(0, 0, 0, 0);
 
-      for (const activity of activities) {
-        const activityDate = new Date(activity.start_date_local);
-        activityDate.setHours(0, 0, 0, 0);
+        for (const activity of activities) {
+          const activityDate = new Date(activity.start_date_local);
+          activityDate.setHours(0, 0, 0, 0);
 
-        // If this activity is from the previous day, increment streak
-        const dayDiff = Math.floor((currentDate - activityDate) / (1000 * 60 * 60 * 24));
-        
-        if (dayDiff === 0) {
-          // Same day as last checked, continue to next activity
-          continue;
-        } else if (dayDiff === 1) {
-          // Consecutive day, increment streak and update current date
-          streak++;
-          currentDate = activityDate;
-        } else {
-          // Gap in days, streak ends here
-          break;
+          // Calculate days between current activity and the last counted one
+          const dayDiff = Math.floor((currentDate - activityDate) / (1000 * 60 * 60 * 24));
+          
+          if (dayDiff === 0) {
+            // Same day as last checked, continue to next activity
+            continue;
+          } else if (dayDiff === 1) {
+            // Consecutive day, increment streak and update current date
+            streak++;
+            currentDate = activityDate;
+          } else {
+            // Gap in days, streak ends here
+            break;
+          }
         }
+        // Add 1 to include the most recent day
+        streak++;
       }
-      // Add 1 to include the most recent day
-      streak++;
     }
 
     // 3️⃣ Format response
