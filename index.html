@@ -211,7 +211,9 @@
       }
     }
 
-    document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
+    // Display run stats and streak
+    const streakText = data.streak ? `🔥 ${data.streak} day streak! | ` : '';
+    document.getElementById("runStats").textContent = `${streakText}${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
 
   // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
     const mapEl = document.getElementById('map');

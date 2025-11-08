@@ -26,8 +26,8 @@ export async function onRequest(context) {
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
 
-    // 2️⃣ Fetch latest activity
-    const actRes = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=1", {
+    // 2️⃣ Fetch recent activities (last 30 days worth)
+    const actRes = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=30", {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
@@ -50,6 +50,36 @@ export async function onRequest(context) {
       });
     }
 
+    // Calculate run streak
+    let streak = 0;
+    if (activities.length > 0) {
+      // Start with the most recent day
+      let currentDate = new Date(activities[0].start_date_local);
+      currentDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+      for (const activity of activities) {
+        const activityDate = new Date(activity.start_date_local);
+        activityDate.setHours(0, 0, 0, 0);
+
+        // If this activity is from the previous day, increment streak
+        const dayDiff = Math.floor((currentDate - activityDate) / (1000 * 60 * 60 * 24));
+        
+        if (dayDiff === 0) {
+          // Same day as last checked, continue to next activity
+          continue;
+        } else if (dayDiff === 1) {
+          // Consecutive day, increment streak and update current date
+          streak++;
+          currentDate = activityDate;
+        } else {
+          // Gap in days, streak ends here
+          break;
+        }
+      }
+      // Add 1 to include the most recent day
+      streak++;
+    }
+
     // 3️⃣ Format response
     const distanceKm = (latest.distance / 1000).toFixed(2);
     const paceMinPerKm = latest.average_speed > 0
@@ -63,7 +93,8 @@ export async function onRequest(context) {
       pace: paceMinPerKm,
       heartRate: latest.average_heartrate || "N/A",
       date: latest.start_date_local,
-      polyline: latest.map?.summary_polyline || null
+      polyline: latest.map?.summary_polyline || null,
+      streak: streak
     }), {
       headers: { "Content-Type": "application/json" }
     });
