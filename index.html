@@ -72,12 +72,20 @@
   <div class="section strava-section">
     <h2>Latest Run</h2>
     <div id="strava">
-      <p id="runName">Loading...</p>
-      <p id="runStats"></p>
-      <div id="map" style="width: 100%; height: 400px; margin-top: 20px;"></div>
-      <div class="run-status">
-        <p>Has Alex run today? <span id="runStatus">Loading...</span></p>
-        <button id="pingAlex" class="btn" style="display: none;">Ping Alex on Slack</button>
+      <div class="strava-grid">
+        <div class="strava-map">
+          <div id="map"></div>
+        </div>
+        <div class="strava-info">
+          <div class="run-details">
+            <p id="runName">Loading...</p>
+            <p id="runStats"></p>
+          </div>
+          <div class="run-status">
+            <p>Has Alex run today? <span id="runStatus">Loading...</span></p>
+            <button id="pingAlex" class="btn" style="display: none;">Ping Alex on Slack</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -93,8 +93,45 @@ body {
   transition: background-color 0.3s ease;
 }
 
+.strava-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+@media (min-width: 768px) {
+  .strava-grid {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+.strava-map {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+#map {
+  width: 100%;
+  height: 300px;
+}
+
+.strava-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.run-details {
+  padding: var(--space-sm);
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
 .run-status {
-  margin-top: var(--space-md);
   padding: var(--space-sm);
   background: var(--bg-secondary);
   border-radius: 8px;
