@@ -97,6 +97,12 @@ export async function onRequest(context) {
       ? (1000 / (latest.average_speed * 60)).toFixed(2)
       : "N/A";
 
+    // Check if there's been a run today
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const latestDate = new Date(latest.start_date_local);
+    const hasRunToday = latestDate >= today;
+
     return new Response(JSON.stringify({
       id: latest.id,
       name: latest.name,
@@ -105,7 +111,8 @@ export async function onRequest(context) {
       heartRate: latest.average_heartrate || "N/A",
       date: latest.start_date_local,
       polyline: latest.map?.summary_polyline || null,
-      streak: streak
+      streak: streak,
+      hasRunToday: hasRunToday
     }), {
       headers: { "Content-Type": "application/json" }
     });

@@ -93,6 +93,43 @@ body {
   transition: background-color 0.3s ease;
 }
 
+.run-status {
+  margin-top: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.run-status p {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-xs);
+}
+
+#runStatus {
+  font-weight: bold;
+}
+
+#pingAlex {
+  margin-top: var(--space-xs);
+  background-color: #E01E5A; /* Slack color */
+  color: white;
+  border: none;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+#pingAlex:hover {
+  opacity: 0.9;
+}
+
+#pingAlex:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .left {
   flex: 1;
   overflow: hidden;

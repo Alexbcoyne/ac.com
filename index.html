@@ -75,6 +75,10 @@
       <p id="runName">Loading...</p>
       <p id="runStats"></p>
       <div id="map" style="width: 100%; height: 400px; margin-top: 20px;"></div>
+      <div class="run-status">
+        <p>Has Alex run today? <span id="runStatus">Loading...</span></p>
+        <button id="pingAlex" class="btn" style="display: none;">Ping Alex on Slack</button>
+      </div>
     </div>
   </div>
 
@@ -177,10 +181,42 @@
 
     if (data.error) {
       document.getElementById("runName").textContent = "Error loading Strava data";
+      document.getElementById("runStatus").textContent = "Error loading data";
       return;
     }
 
     const runNameEl = document.getElementById("runName");
+    const runStatusEl = document.getElementById("runStatus");
+    const pingButton = document.getElementById("pingAlex");
+
+    // Update run status
+    if (data.hasRunToday) {
+      runStatusEl.textContent = "✅ Yes!";
+      pingButton.style.display = "none";
+    } else {
+      runStatusEl.textContent = "❌ Not yet";
+      pingButton.style.display = "inline-block";
+    }
+
+    // Set up ping button click handler
+    pingButton.onclick = async () => {
+      pingButton.disabled = true;
+      try {
+        const pingRes = await fetch("/api/slack/ping-alex");
+        const pingData = await pingRes.json();
+        if (pingData.success) {
+          pingButton.textContent = "Pinged! 👍";
+        } else {
+          pingButton.textContent = "Failed to ping 😕";
+        }
+      } catch (err) {
+        pingButton.textContent = "Failed to ping 😕";
+      }
+      setTimeout(() => {
+        pingButton.textContent = "Ping Alex on Slack";
+        pingButton.disabled = false;
+      }, 3000);
+    };
     // If the API returned an activity id, link to the Strava activity; otherwise just show the name
     runNameEl.textContent = '';
     
