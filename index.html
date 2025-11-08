@@ -269,10 +269,25 @@
           }
 
           if (!map) {
-            map = L.map('map');
+            map = L.map('map', {
+              zoomSnap: 0.1,
+              zoomDelta: 0.5
+            });
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
             }).addTo(map);
+
+            // Add resize handler to update map when container size changes
+            const resizeObserver = new ResizeObserver(() => {
+              map.invalidateSize();
+              if (routeLayer) {
+                map.fitBounds(routeLayer.getBounds(), { 
+                  padding: [20, 20],
+                  maxZoom: 16
+                });
+              }
+            });
+            resizeObserver.observe(map.getContainer());
           }
 
           // Remove existing route layer if present
@@ -287,7 +302,11 @@
 
           try {
             routeLayer = L.polyline(latlngs, { color: '#FF0000', weight: 4 }).addTo(map);
-            map.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+            map.fitBounds(routeLayer.getBounds(), { 
+              padding: [20, 20],
+              maxZoom: 16,
+              animate: true
+            });
           } catch (e) { console.warn('Could not draw route', e); }
         } catch (e) {
           console.warn('Leaflet load/init failed', e);
