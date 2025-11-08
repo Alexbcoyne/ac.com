@@ -13,7 +13,31 @@ export async function onRequest(context) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        text: "👋 Hey Alex! People are wondering if you're going for a run today! 🏃‍♂️"
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "*Run Status Check* �"
+            }
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "Hey Alex! Someone checked your website and noticed you haven't gone for a run today! 🏃‍♂️\nThink you'll head out for one? 🤔"
+            }
+          },
+          {
+            type: "context",
+            elements: [
+              {
+                type: "mrkdwn",
+                text: "Sent from alexandercoyne.com"
+              }
+            ]
+          }
+        ]
       })
     });
 
