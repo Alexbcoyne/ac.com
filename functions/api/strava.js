@@ -59,6 +59,8 @@ export async function onRequest(context) {
     // Calculate run streak and check if run today
     let streak = 0;
     let hasRunToday = false;
+    let streakTotalDistance = 0; // in meters
+    let streakTotalTime = 0; // in seconds
 
     if (activities.length > 0) {
       // Get current date in local timezone
@@ -92,11 +94,15 @@ export async function onRequest(context) {
           const dayDiff = Math.floor((currentDate - activityDate) / (1000 * 60 * 60 * 24));
           
           if (dayDiff === 0) {
-            // Same day as last checked, continue to next activity
+            // Same day as last checked, add to totals but continue
+            streakTotalDistance += activity.distance || 0;
+            streakTotalTime += activity.moving_time || 0;
             continue;
           } else if (dayDiff === 1) {
-            // Consecutive day, increment streak and update current date
+            // Consecutive day, increment streak, add to totals, and update current date
             streak++;
+            streakTotalDistance += activity.distance || 0;
+            streakTotalTime += activity.moving_time || 0;
             currentDate = activityDate;
           } else {
             // Gap in days, streak ends here
@@ -123,7 +129,11 @@ export async function onRequest(context) {
       date: latest.start_date_local,
       polyline: latest.map?.summary_polyline || null,
       streak: streak,
-      hasRunToday: hasRunToday
+      hasRunToday: hasRunToday,
+      streakStats: {
+        totalDistance: (streakTotalDistance / 1000).toFixed(2), // Convert to km
+        totalTime: formatTime(streakTotalTime)
+      }
     }), {
       headers: { "Content-Type": "application/json" }
     });
