@@ -131,26 +131,26 @@
   let routeLayer = null;
   const routeLayerId = 'route-layer';
     
-    // Lazy-load Leaflet JS and CSS when needed (free OpenStreetMap tiles)
-    function loadLeafletLib() {
-      if (typeof window.L !== 'undefined') return Promise.resolve();
-      return new Promise((resolve, reject) => {
-        const css = document.createElement('link');
-        css.rel = 'stylesheet';
-        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        css.onload = () => {};
-        css.onerror = () => {};
-        document.head.appendChild(css);
+  // Lazy-load Leaflet JS and CSS when needed (free OpenStreetMap tiles)
+  function loadLeafletLib() {
+    if (typeof window.L !== 'undefined') return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      css.onload = () => {};
+      css.onerror = () => {};
+      document.head.appendChild(css);
 
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        script.async = true;
-        script.onload = () => resolve();
-        script.onerror = (e) => reject(new Error('Failed to load Leaflet script'));
-        document.head.appendChild(script);
-      });
-    }
-    async function loadSpotify() {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = (e) => reject(new Error('Failed to load Leaflet script'));
+      document.head.appendChild(script);
+    });
+  }
+  async function loadSpotify() {
       try {
         const res = await fetch('/api/spotify');
         const data = await res.json();
@@ -179,6 +179,7 @@
       }
     }
 
+    // Update top tracks (keeps previous logic)
     async function updateTopTracks(timeRange = 'short_term') {
       try {
         const res = await fetch(`/api/spotify/top-tracks?time_range=${timeRange}`);
@@ -187,13 +188,12 @@
         const container = document.getElementById('topTracks');
         container.innerHTML = '';
 
-          if (data.error) {
-            // show server error message if provided
-            container.textContent = 'Error loading top tracks: ' + (data.error || JSON.stringify(data));
-            return;
-          }
+        if (data.error) {
+          container.textContent = 'Error loading top tracks: ' + (data.error || JSON.stringify(data));
+          return;
+        }
 
-          if (data.items && data.items.length > 0) {
+        if (data.items && data.items.length > 0) {
           data.items.forEach(track => {
             const div = document.createElement('div');
             div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
@@ -447,6 +447,105 @@ function decodePolyline(str, precision = 5) {
       localStorage.setItem('theme', newTheme);
     });
   }
-  </script>
+
+  // Lazy-load Leaflet JS and CSS when needed (free OpenStreetMap tiles)
+  function loadLeafletLib() {
+    if (typeof window.L !== 'undefined') return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      css.onload = () => {};
+      css.onerror = () => {};
+      document.head.appendChild(css);
+
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = (e) => reject(new Error('Failed to load Leaflet script'));
+      document.head.appendChild(script);
+    });
+  }
+
+  // Update top tracks (keeps previous logic)
+  async function updateTopTracks(timeRange = 'short_term') {
+    try {
+      const res = await fetch(`/api/spotify/top-tracks?time_range=${timeRange}`);
+      const data = await res.json();
+
+      const container = document.getElementById('topTracks');
+      container.innerHTML = '';
+
+      if (data.error) {
+        container.textContent = 'Error loading top tracks: ' + (data.error || JSON.stringify(data));
+        return;
+      }
+
+      if (data.items && data.items.length > 0) {
+        data.items.forEach(track => {
+          const div = document.createElement('div');
+          div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
+          container.appendChild(div);
+        });
+      } else {
+        container.textContent = 'No top tracks available';
+      }
+    } catch (err) {
+      console.error('Top Tracks Error:', err);
+      document.getElementById('topTracks').textContent = "Error loading top tracks";
+    }
+  }
+
+  // Main initialization (clean, with safety checks)
+  function safeInit() {
+    try {
+      if (typeof loadStrava === 'function') {
+        loadStrava();
+        setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
+      }
+
+      // Time range buttons
+      document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
+        btn.addEventListener('click', () => updateTopTracks(btn.dataset.range));
+      });
+
+      if (typeof loadSpotify === 'function') {
+        loadSpotify();
+        setInterval(loadSpotify, 15000); // refresh every 15s
+      }
+
+      updateTopTracks();
+    } catch (e) {
+      console.error('Initialization error:', e);
+    }
+  }
+
+  // Update streak DOM (only the fields that exist)
+  function renderStreak(data = {}) {
+    const streakCount = document.getElementById("streakCount");
+    const distEl = document.getElementById("streakDistance");
+    const timeEl = document.getElementById("streakTime");
+
+    const count = (data.streak && Number.isFinite(data.streak)) ? data.streak : 0;
+    streakCount && (streakCount.textContent = count);
+
+    const stats = data.streakStats || {};
+    const totalKm = (stats.totalDistanceKm ?? stats.total_km ?? stats.totalDistance) || 0;
+    distEl && (distEl.textContent = totalKm ? `${Number(totalKm).toFixed(1)} km` : '-');
+
+    const totalSec = (stats.totalTimeSec ?? stats.total_seconds ?? stats.totalTime) || 0;
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    timeEl && (timeEl.textContent = totalSec ? (h ? `${h}h ${m}m` : `${m}m`) : '-');
+  }
+
+  // Start safely once DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', safeInit);
+  } else {
+    safeInit();
+  }
+</script>
 </body>
 </html>
