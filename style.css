@@ -437,7 +437,7 @@ a:focus-visible {
 
 .streak-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  grid-template-columns: 1fr 1fr; /* force distance and time side-by-side */
   gap: var(--space-sm);
   width: 100%;
 }
