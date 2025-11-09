@@ -279,6 +279,16 @@ main.snap-scroll-container {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  align-items: center;
+  text-align: center;
+}
+
+#spotify-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
 }
 
 #spotify .now-playing {
