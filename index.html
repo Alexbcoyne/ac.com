@@ -93,6 +93,24 @@
                 <p>Current Streak</p>
                 <p class="streak-count" id="streakCount">Loading...</p>
                 <p class="streak-label">days</p>
+                <div class="streak-stats">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Distance</span>
+                    <span class="stat-value" id="streakDistance">-</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Time</span>
+                    <span class="stat-value" id="streakTime">-</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Avg. Pace</span>
+                    <span class="stat-value" id="streakPace">-</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Runs</span>
+                    <span class="stat-value" id="streakRuns">-</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -269,9 +287,15 @@
     // Display run stats
     document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
     
-    // Update streak display
+    // Update streak display and stats
     const streakCount = document.getElementById("streakCount");
+    const stats = data.streakStats || {};
+    
     streakCount.textContent = data.streak || '0';
+    document.getElementById("streakDistance").textContent = stats.totalDistance ? `${stats.totalDistance}km` : '-';
+    document.getElementById("streakTime").textContent = stats.totalTime || '-';
+    document.getElementById("streakPace").textContent = stats.averagePace ? `${stats.averagePace}min/km` : '-';
+    document.getElementById("streakRuns").textContent = stats.totalRuns || '-';
 
   // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
     const mapEl = document.getElementById('map');
