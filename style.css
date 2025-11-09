@@ -152,13 +152,47 @@ body {
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
-.run-status p {
+.status-grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 992px) {
+  .status-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.today-status p {
   font-size: var(--text-base);
   margin-bottom: var(--space-xs);
 }
 
 #runStatus {
   font-weight: bold;
+}
+
+.streak-status {
+  text-align: center;
+  padding: var(--space-xs);
+  border-radius: 6px;
+  background: var(--bg-primary);
+}
+
+.streak-count {
+  font-size: var(--text-xl);
+  font-weight: bold;
+  margin: var(--space-xs) 0;
+  color: var(--text-primary);
+}
+
+.streak-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 #pingAlex {

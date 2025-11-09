@@ -84,8 +84,17 @@
         </div>
         <div class="strava-info">
           <div class="run-status">
-            <p>Has Alex run today? <span id="runStatus">Loading...</span></p>
-            <button id="pingAlex" class="btn" style="display: none;">Ping Alex on Slack</button>
+            <div class="status-grid">
+              <div class="today-status">
+                <p>Has Alex run today? <span id="runStatus">Loading...</span></p>
+                <button id="pingAlex" class="btn" style="display: none;">Ping Alex on Slack</button>
+              </div>
+              <div class="streak-status">
+                <p>Current Streak</p>
+                <p class="streak-count" id="streakCount">Loading...</p>
+                <p class="streak-label">days</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -257,9 +266,12 @@
       }
     }
 
-    // Display run stats and streak
-    const streakText = data.streak ? `🔥 ${data.streak} day streak! | ` : '';
-    document.getElementById("runStats").textContent = `${streakText}${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
+    // Display run stats
+    document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
+    
+    // Update streak display
+    const streakCount = document.getElementById("streakCount");
+    streakCount.textContent = data.streak || '0';
 
   // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
     const mapEl = document.getElementById('map');
