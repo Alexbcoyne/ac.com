@@ -125,8 +125,14 @@ a:focus-visible {
    ========================================================= */
 main.snap-scroll-container {
   overflow-y: scroll;
-  height: 100vh;
   scroll-snap-type: y proximity;
+}
+
+/* Desktop: Fixed viewport height */
+@media (min-width: 769px) {
+  main.snap-scroll-container {
+    height: 100vh;
+  }
 }
 
 .container,
@@ -136,17 +142,12 @@ main.snap-scroll-container {
   scroll-snap-align: start;
 }
 
-/* Mobile: Allow scrolling within tall sections */
+/* Mobile: Allow full scrolling through all content */
 @media (max-width: 768px) {
-  main.snap-scroll-container {
-    scroll-snap-type: y proximity;
-  }
-  
   .container,
   .section.about,
   .music-grid,
   .section.strava-section {
-    scroll-snap-align: start;
     scroll-snap-stop: normal;
   }
 }
