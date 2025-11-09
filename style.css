@@ -176,9 +176,13 @@ body {
 
 .streak-status {
   text-align: center;
-  padding: var(--space-xs);
+  padding: var(--space-sm);
   border-radius: 6px;
   background: var(--bg-primary);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .streak-count {
@@ -198,18 +202,24 @@ body {
 
 .streak-stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-xs);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-sm);
   margin-top: var(--space-sm);
   padding-top: var(--space-sm);
   border-top: 1px solid var(--shadow-color);
+  width: 100%;
 }
 
 .stat-item {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  padding: var(--space-xs);
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  text-align: center;
+  min-height: 70px;
+  box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .stat-label {

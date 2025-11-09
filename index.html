@@ -85,30 +85,34 @@
         <div class="strava-info">
           <div class="run-status">
             <div class="status-grid">
+              
+              <!-- Has Alex run today section -->
               <div class="today-status">
                 <p>Has Alex run today? <span id="runStatus">Loading...</span></p>
                 <button id="pingAlex" class="btn" style="display: none;">Ping Alex on Slack</button>
-              </div>
-              <div class="streak-status">
-                <p>Current Streak</p>
-                <p class="streak-count" id="streakCount">Loading...</p>
-                <p class="streak-label">days</p>
-                <div class="streak-stats">
-                  <div class="stat-item">
-                    <span class="stat-label">Total Distance</span>
-                    <span class="stat-value" id="streakDistance">-</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-label">Total Time</span>
-                    <span class="stat-value" id="streakTime">-</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-label">Avg. Pace</span>
-                    <span class="stat-value" id="streakPace">-</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-label">Total Runs</span>
-                    <span class="stat-value" id="streakRuns">-</span>
+              
+                <!-- Current Streak section -->
+                <div class="streak-status">
+                  <p>Current Streak</p>
+                  <p class="streak-count" id="streakCount">Loading...</p>
+                  <p class="streak-label">days</p>
+                  <div class="streak-stats">
+                    <div class="stat-item">
+                      <span class="stat-label">Total Distance</span>
+                      <span class="stat-value" id="streakDistance">-</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Total Time</span>
+                      <span class="stat-value" id="streakTime">-</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Avg. Pace</span>
+                      <span class="stat-value" id="streakPace">-</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Total Runs</span>
+                      <span class="stat-value" id="streakRuns">-</span>
+                    </div>
                   </div>
                 </div>
               </div>
