@@ -25,7 +25,7 @@ export async function onRequest(context) {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "Hey Alex! Someone checked your website and noticed you haven't gone for a run today! 🏃‍♂️\nThink you'll head out for one? 🤔"
+              text: "<!channel> Hey Alex! Someone checked your website and noticed you haven't gone for a run today! 🏃‍♂️\nThink you'll head out for one? 🤔"
             }
           },
           {
