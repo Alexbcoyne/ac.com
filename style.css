@@ -236,12 +236,19 @@ a:focus-visible {
    Music Section
    ========================================================= */
 .music-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr; /* stack on small screens */
   gap: var(--space-lg);
   max-width: 1100px;
   margin: 0 auto;
   width: 100%;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .music-grid {
+    grid-template-columns: 1fr 1fr; /* side by side on larger screens */
+  }
 }
 
 .music-grid .section {
