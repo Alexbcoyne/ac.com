@@ -93,25 +93,17 @@
               
                 <!-- Current Streak section -->
                 <div class="streak-status">
-                  <p>Current Streak</p>
-                  <p class="streak-count" id="streakCount">Loading...</p>
+                  <p class="streak-count" id="streakCount">-</p>
                   <p class="streak-label">days</p>
+
                   <div class="streak-stats">
                     <div class="stat-item">
-                      <span class="stat-label">Total Distance</span>
-                      <span class="stat-value" id="streakDistance">-</span>
+                      <div class="streak-stat-label">Total streak distance</div>
+                      <div class="streak-stat-value" id="streakDistance">-</div>
                     </div>
                     <div class="stat-item">
-                      <span class="stat-label">Total Time</span>
-                      <span class="stat-value" id="streakTime">-</span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">Avg. Pace</span>
-                      <span class="stat-value" id="streakPace">-</span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">Total Runs</span>
-                      <span class="stat-value" id="streakRuns">-</span>
+                      <div class="streak-stat-label">Streak time</div>
+                      <div class="streak-stat-value" id="streakTime">-</div>
                     </div>
                   </div>
                 </div>
@@ -186,6 +178,24 @@
           console.error(err);
       }
     }
+
+    function updateStreakUI(streak) {
+    const countEl = document.getElementById('streakCount');
+    const distEl = document.getElementById('streakDistance');
+    const timeEl = document.getElementById('streakTime');
+
+    const active = !!streak && (streak.active ?? streak.count > 0);
+
+    countEl.textContent = active ? (streak.count ?? 0) : 0;
+
+    const totalKm = streak.totalDistanceKm ?? streak.total_km ?? 0;
+    distEl.textContent = active ? `${totalKm.toFixed(1)} km` : '-';
+
+    const totalSec = streak.totalTimeSec ?? streak.total_seconds ?? 0;
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    timeEl.textContent = active ? (h ? `${h}h ${m}m` : `${m}m`) : '-';
+  }
 
     async function updateTopTracks(timeRange = 'short_term') {
       try {
@@ -419,41 +429,44 @@ function decodePolyline(str, precision = 5) {
   loadStrava();
   setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
 
-    // Handle time range buttons
-    document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
-      btn.addEventListener('click', () => updateTopTracks(btn.dataset.range));
-    });
+  // Handle time range buttons
+  document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
+    btn.addEventListener('click', () => updateTopTracks(btn.dataset.range));
+  });
 
-  // Initial load
+  // Initial loads and intervals
   loadSpotify();
   updateTopTracks();
   setInterval(loadSpotify, 15000); // refresh every 15s
 
   // Theme toggling
   const themeToggle = document.querySelector('.theme-toggle');
-  
-  // Check for saved theme preference or system preference
+  const themeToggleText = themeToggle && themeToggle.querySelector('.theme-toggle-text');
+
   const savedTheme = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  // Set initial theme
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
   if (savedTheme) {
     document.documentElement.dataset.theme = savedTheme;
-    if (savedTheme === 'dark') {
-      themeToggle.querySelector('.theme-toggle-text').textContent = '🌞';
-    }
+    if (themeToggleText) themeToggleText.textContent = savedTheme === 'dark' ? '🌞' : '🌜';
   } else if (prefersDark) {
     document.documentElement.dataset.theme = 'dark';
-    themeToggle.querySelector('.theme-toggle-text').textContent = '🌞';
+    if (themeToggleText) themeToggleText.textContent = '🌞';
+  } else {
+    document.documentElement.dataset.theme = 'light';
+    if (themeToggleText) themeToggleText.textContent = '🌜';
   }
 
   // Theme toggle handler
-  themeToggle.addEventListener('click', () => {
-    const isDark = document.documentElement.dataset.theme === 'dark';
-    document.documentElement.dataset.theme = isDark ? 'light' : 'dark';
-    themeToggle.querySelector('.theme-toggle-text').textContent = isDark ? '🌜' : '🌞';
-    localStorage.setItem('theme', isDark ? 'light' : 'dark');
-  });
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      document.documentElement.dataset.theme = newTheme;
+      if (themeToggleText) themeToggleText.textContent = newTheme === 'dark' ? '🌞' : '🌜';
+      localStorage.setItem('theme', newTheme);
+    });
+  }
   </script>
 </body>
 </html>

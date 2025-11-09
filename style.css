@@ -93,6 +93,148 @@ body {
   transition: background-color 0.3s ease;
 }
 
+/* ==== Strava UX improvements (layout, cards, streak tiles) ==== */
+
+/* Grid: map+details (left) | status+streak (right) */
+.strava-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .strava-grid {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+/* Map container as a card */
+.strava-map {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: var(--space-sm);
+  box-shadow: 0 1px 3px var(--shadow-color, rgba(0,0,0,0.06));
+}
+
+#map {
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  #map { height: 320px; }
+}
+
+/* Run details under the map as a card */
+.run-details {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: var(--space-md);
+  box-shadow: 0 1px 3px var(--shadow-color, rgba(0,0,0,0.06));
+}
+
+/* Right column container spacing */
+.strava-info {
+  display: grid;
+  gap: var(--space-md);
+}
+
+/* Run status (Has Alex run today + streak) as a card */
+.run-status {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: var(--space-md);
+  box-shadow: 0 1px 3px var(--shadow-color, rgba(0,0,0,0.06));
+}
+
+/* Top row: question + answer + button */
+.today-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.today-status p {
+  margin: 0;
+  color: var(--text-primary);
+}
+#runStatus {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Streak block with divider */
+.streak-status {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Big streak number + small label */
+.streak-count {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 800;
+  line-height: 1;
+  margin: 0;
+  color: var(--text-primary);
+}
+.streak-label {
+  margin: 2px 0 var(--space-sm);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+/* Tile-style metrics grid */
+.streak-stats,
+.streak-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.streak-stats > div,
+.streak-metrics > div,
+.streak-stats .stat-item,
+.streak-stats .stat,
+.streak-metrics .stat-item,
+.streak-metrics .stat {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: var(--space-sm);
+  min-height: 64px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+}
+
+.streak-stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+.streak-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Buttons row spacing (re-usable) */
+.buttons,
+.today-status .buttons {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
 .strava-grid {
   display: grid;
   grid-template-columns: 1fr;
