@@ -280,13 +280,17 @@
     }
     runNameEl.appendChild(nameSpan);
 
-    // Add date inline after the name
+    // Add date inline after the name with a separator
     if (data.date) {
       try {
         const dateSpan = document.createElement('span');
         dateSpan.className = 'date';
         const d = new Date(data.date);
         dateSpan.textContent = d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+        // Add separator only if there is already content (name/link)
+        if (runNameEl.textContent.trim().length > 0) {
+          runNameEl.appendChild(document.createTextNode(' | '));
+        }
         runNameEl.appendChild(dateSpan);
       } catch (e) {
         console.warn('Failed to format date:', e);
