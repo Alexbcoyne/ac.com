@@ -767,3 +767,59 @@ h2 {
     text-align: center;
   }
 }
+
+/* Ensure run-status area children fill the available card width */
+.run-status .status-grid,
+.run-status .today-status,
+.run-status .streak-status {
+  width: 100%;
+}
+
+/* Stack content vertically so the ping button and streak board span full width */
+.today-status {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+/* Make the ping button full-width inside the card */
+#pingAlex,
+.today-status .btn {
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Streak block occupies full width and tiles expand */
+.streak-status {
+  width: 100%;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.streak-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.streak-stats .stat-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--space-sm);
+  box-sizing: border-box;
+}
+
+/* Keep it consistent on wider screens (still full width inside the right column) */
+@media (min-width: 992px) {
+  .today-status {
+    flex-direction: column;
+  }
+  #pingAlex { align-self: stretch; }
+}
