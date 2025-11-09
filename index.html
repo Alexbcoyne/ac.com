@@ -179,24 +179,6 @@
       }
     }
 
-    function updateStreakUI(streak) {
-    const countEl = document.getElementById('streakCount');
-    const distEl = document.getElementById('streakDistance');
-    const timeEl = document.getElementById('streakTime');
-
-    const active = !!streak && (streak.active ?? streak.count > 0);
-
-    countEl.textContent = active ? (streak.count ?? 0) : 0;
-
-    const totalKm = streak.totalDistanceKm ?? streak.total_km ?? 0;
-    distEl.textContent = active ? `${totalKm.toFixed(1)} km` : '-';
-
-    const totalSec = streak.totalTimeSec ?? streak.total_seconds ?? 0;
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    timeEl.textContent = active ? (h ? `${h}h ${m}m` : `${m}m`) : '-';
-  }
-
     async function updateTopTracks(timeRange = 'short_term') {
       try {
         const res = await fetch(`/api/spotify/top-tracks?time_range=${timeRange}`);
@@ -308,8 +290,6 @@
     streakCount.textContent = data.streak || '0';
     document.getElementById("streakDistance").textContent = stats.totalDistance ? `${stats.totalDistance}km` : '-';
     document.getElementById("streakTime").textContent = stats.totalTime || '-';
-    document.getElementById("streakPace").textContent = stats.averagePace ? `${stats.averagePace}min/km` : '-';
-    document.getElementById("streakRuns").textContent = stats.totalRuns || '-';
 
   // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
     const mapEl = document.getElementById('map');
