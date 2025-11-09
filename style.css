@@ -832,3 +832,37 @@ h2 {
   border-width: 1px;
   border-radius: 4px;
 }
+
+/* Center streak block inside the "Has Alex run today?" area */
+.today-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: stretch; /* keep question + button full width by default */
+}
+
+/* Make the streak card centered and constrained */
+.today-status .streak-status {
+  max-width: 520px;   /* limit width so it doesn't span the whole column */
+  width: 100%;
+  margin: 0 auto;     /* center horizontally */
+  box-sizing: border-box;
+  text-align: center; /* center the contents (number/labels) */
+}
+
+/* Ensure the tiles inside the streak card remain full width and responsive */
+.today-status .streak-status .streak-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+/* On very small screens keep things spanning full width */
+@media (max-width: 420px) {
+  .today-status .streak-status {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
