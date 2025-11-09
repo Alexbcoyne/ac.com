@@ -866,3 +866,41 @@ h2 {
     padding-right: 0;
   }
 }
+
+/* Center run-status contents while filling the section */
+.run-status {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center inner blocks */
+}
+
+/* Inner blocks fill width; content centered */
+.run-status .today-status,
+.run-status .streak-status {
+  width: 100%;
+  max-width: none;   /* override any previous cap */
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Actions and stats stretch full width */
+.run-status .today-status .buttons,
+.run-status #pingAlex,
+.run-status .streak-status .streak-stats {
+  width: 100%;
+}
+
+/* Stats grid fills available space responsively */
+.run-status .streak-status .streak-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-sm);
+}
+
+/* Buttons span full width with centered label */
+.run-status .btn,
+.run-status #pingAlex {
+  width: 100%;
+  justify-content: center;
+}
