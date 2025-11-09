@@ -816,10 +816,19 @@ h2 {
   box-sizing: border-box;
 }
 
-/* Keep it consistent on wider screens (still full width inside the right column) */
-@media (min-width: 992px) {
-  .today-status {
-    flex-direction: column;
-  }
-  #pingAlex { align-self: stretch; }
+/* Preserve visible borders on interactive buttons in dark mode */
+[data-theme="dark"] .btn,
+[data-theme="dark"] .today-status .btn,
+[data-theme="dark"] #timeRangeButtons button,
+[data-theme="dark"] #pingAlex {
+  border-color: rgba(255,255,255,0.08) !important;
+  border-style: solid !important;
+}
+
+/* If #pingAlex had border:none earlier, ensure it shows a subtle outline in dark mode */
+[data-theme="dark"] #pingAlex {
+  background-color: #E01E5A;
+  color: #fff;
+  border-width: 1px;
+  border-radius: 4px;
 }
