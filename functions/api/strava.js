@@ -50,18 +50,29 @@ export async function onRequest(context) {
       });
     }
 
-    // Calculate run streak
+    // Calculate run streak and check if run today
     let streak = 0;
+    let hasRunToday = false;
+
     if (activities.length > 0) {
-      // Check if the most recent activity is within the last day
+      // Get current date in local timezone
       const now = new Date();
-      now.setHours(0, 0, 0, 0); // Reset to start of today
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      // Check the most recent activity
       const mostRecentDate = new Date(activities[0].start_date_local);
-      mostRecentDate.setHours(0, 0, 0, 0);
+      const activityDay = new Date(
+        mostRecentDate.getFullYear(),
+        mostRecentDate.getMonth(),
+        mostRecentDate.getDate()
+      );
       
-      const daysSinceLastRun = Math.floor((now - mostRecentDate) / (1000 * 60 * 60 * 24));
+      // Check if the most recent activity was today
+      hasRunToday = activityDay.getTime() === today.getTime();
       
-      // Only count streak if you've run today or yesterday
+      // Calculate streak if run today or yesterday
+      const daysSinceLastRun = Math.floor((today - activityDay) / (1000 * 60 * 60 * 24));
+      
       if (daysSinceLastRun <= 1) {
         // Start counting from the most recent activity
         let currentDate = new Date(activities[0].start_date_local);
@@ -96,12 +107,6 @@ export async function onRequest(context) {
     const paceMinPerKm = latest.average_speed > 0
       ? (1000 / (latest.average_speed * 60)).toFixed(2)
       : "N/A";
-
-    // Check if there's been a run today
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const latestDate = new Date(latest.start_date_local);
-    const hasRunToday = latestDate >= today;
 
     return new Response(JSON.stringify({
       id: latest.id,
