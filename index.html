@@ -51,6 +51,7 @@
       <div id="spotify-track">
   <img id="albumArt" src="" alt="Album Art">
   <p id="track" aria-live="polite">Loading...</p>
+  <a id="spotifyLink" href="#" target="_blank" rel="noopener noreferrer" class="btn" style="display: none;">Open in Spotify</a>
       </div>
     </div>
   </div>
@@ -157,24 +158,36 @@
         
         if (data.nowPlaying?.playing) {
           const albumEl = document.getElementById('albumArt');
+          const linkEl = document.getElementById('spotifyLink');
           albumEl.src = data.nowPlaying.albumArt;
           albumEl.alt = `${data.nowPlaying.title} album art`;
           document.getElementById('track').textContent = `${data.nowPlaying.artist} — ${data.nowPlaying.title}`;
           albumEl.classList.remove('no-music');
+          
+          if (data.nowPlaying.spotifyUrl) {
+            linkEl.href = data.nowPlaying.spotifyUrl;
+            linkEl.style.display = 'inline-block';
+          } else {
+            linkEl.style.display = 'none';
+          }
         } else {
           const albumEl = document.getElementById('albumArt');
+          const linkEl = document.getElementById('spotifyLink');
           document.getElementById('track').textContent = "Nothing playing right now";
           albumEl.src = 'no-music.png';
           albumEl.alt = 'No music playing';
           albumEl.classList.add('no-music');
+          linkEl.style.display = 'none';
         }
       } catch (err) {
           const albumEl = document.getElementById('albumArt');
+          const linkEl = document.getElementById('spotifyLink');
           document.getElementById('track').textContent = "Error loading Spotify";
           if (albumEl) {
             albumEl.src = 'no-music.png';
             albumEl.classList.add('no-music');
           }
+          if (linkEl) linkEl.style.display = 'none';
           console.error(err);
       }
     }

@@ -41,7 +41,8 @@ export async function onRequest(context) {
       playing: true,
       artist: nowData.item?.artists?.map(a => a.name).join(', ') || '',
       title: nowData.item?.name || '',
-      albumArt: nowData.item?.album?.images?.[0]?.url || ''
+      albumArt: nowData.item?.album?.images?.[0]?.url || '',
+      spotifyUrl: nowData.item?.external_urls?.spotify || ''
     };
 
     return new Response(JSON.stringify({ nowPlaying }), {
