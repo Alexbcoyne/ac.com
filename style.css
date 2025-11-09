@@ -124,9 +124,30 @@ a:focus-visible {
    Layout
    ========================================================= */
 main.snap-scroll-container {
-  scroll-snap-type: y proximity;
   overflow-y: scroll;
   height: 100vh;
+}
+
+/* Enable snap scroll only on mobile/touch devices */
+@media (max-width: 768px) {
+  main.snap-scroll-container {
+    scroll-snap-type: y proximity;
+    scroll-padding: 0;
+  }
+  
+  .container,
+  .section.about,
+  .music-grid,
+  .section.strava-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+  
+  /* Ensure sections can be scrolled through completely on mobile */
+  .section.strava-section,
+  .music-grid {
+    min-height: auto;
+  }
 }
 
 .container {
@@ -134,7 +155,6 @@ main.snap-scroll-container {
   grid-template-columns: 1fr 1fr;
   min-height: 100vh;
   overflow: hidden;
-  scroll-snap-align: start;
 }
 
 .left, .right {
@@ -182,7 +202,6 @@ main.snap-scroll-container {
 .section.about,
 .music-grid,
 .section.strava-section {
-  scroll-snap-align: start;
   padding-top: var(--space-lg);
 }
 
