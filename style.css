@@ -124,7 +124,7 @@ a:focus-visible {
    Layout
    ========================================================= */
 main.snap-scroll-container {
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
   overflow-y: scroll;
   height: 100vh;
 }
@@ -135,7 +135,6 @@ main.snap-scroll-container {
   min-height: 100vh;
   overflow: hidden;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
 .left, .right {
@@ -184,7 +183,6 @@ main.snap-scroll-container {
 .music-grid,
 .section.strava-section {
   scroll-snap-align: start;
-  min-height: 100vh;
   padding-top: var(--space-lg);
 }
 
