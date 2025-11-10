@@ -137,7 +137,7 @@ main.snap-scroll-container {
 
 .container,
 .section.about,
-.music-grid,
+.section.music-section,
 .section.strava-section {
   scroll-snap-align: start;
 }
@@ -146,7 +146,7 @@ main.snap-scroll-container {
 @media (max-width: 768px) {
   .container,
   .section.about,
-  .music-grid,
+  .section.music-section,
   .section.strava-section {
     scroll-snap-stop: normal;
   }
@@ -202,7 +202,7 @@ main.snap-scroll-container {
 }
 
 .section.about,
-.music-grid,
+.section.music-section,
 .section.strava-section {
   padding-top: var(--space-lg);
 }
@@ -286,7 +286,7 @@ main.snap-scroll-container {
   }
 }
 
-.music-grid .section {
+.music-subsection {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -555,7 +555,7 @@ main.snap-scroll-container {
 }
 
 @media (max-width: 880px) {
-  .music-grid .section {
+  .music-subsection {
     padding: var(--space-md) var(--space-lg);
   }
 }
@@ -599,7 +599,7 @@ main.snap-scroll-container {
 /* =========================================================
    Dark Mode Specific Tweaks (minimal)
    ========================================================= */
-[data-theme="dark"] .music-grid .section,
+[data-theme="dark"] .music-subsection,
 [data-theme="dark"] .run-details,
 [data-theme="dark"] .run-status {
   box-shadow: 0 1px 2px rgba(0,0,0,0.7);

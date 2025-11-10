@@ -42,31 +42,33 @@
     </div>
   </div>
 
-  <!-- Music Sections (Currently Playing + Top Tracks) -->
-  <div class="music-grid">
-  <!-- Currently Playing Section -->
-  <div class="section" id="currently-playing-section">
-    <h2>Currently Listening</h2>
-    <div id="spotify">
-      <div id="spotify-track">
-  <img id="albumArt" src="" alt="Album Art">
-  <p id="track" aria-live="polite">Loading...</p>
-  <a id="spotifyLink" href="#" target="_blank" rel="noopener noreferrer" class="btn" style="display: none;">Open in Spotify</a>
+  <!-- Music Section -->
+  <div class="section music-section">
+    <h2>Music</h2>
+    <div class="music-grid">
+      <!-- Currently Playing Section -->
+      <div class="music-subsection" id="currently-playing-section">
+        <h3>Currently Listening</h3>
+        <div id="spotify">
+          <div id="spotify-track">
+            <img id="albumArt" src="" alt="Album Art">
+            <p id="track" aria-live="polite">Loading...</p>
+            <a id="spotifyLink" href="#" target="_blank" rel="noopener noreferrer" class="btn" style="display: none;">Open in Spotify</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Tracks Section -->
+      <div class="music-subsection" id="top-tracks-section">
+        <h3>Most Listens</h3>
+        <div id="timeRangeButtons">
+          <button data-range="short_term">Last Month</button>
+          <button data-range="medium_term">Last 6 Months</button>
+          <button data-range="long_term">All Time</button>
+        </div>
+        <div id="topTracks">Loading...</div>
       </div>
     </div>
-  </div>
-
-  <!-- Top Tracks Section -->
-  <div class="section" id="top-tracks-section">
-    <h2>Most Listens</h2>
-    <div id="timeRangeButtons">
-      <button data-range="short_term">Last Month</button>
-      <button data-range="medium_term">Last 6 Months</button>
-      <button data-range="long_term">All Time</button>
-    </div>
-    <div id="topTracks">Loading...</div>
-  </div>
-
   </div>
 
   <!-- Latest Strava Section -->
