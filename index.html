@@ -288,7 +288,8 @@
       try {
         const dateSpan = document.createElement('span');
         dateSpan.className = 'date';
-        const d = new Date(data.date);
+        // Parse the local date string - append 'Z' is removed so it's treated as local time
+        const d = new Date(data.date.replace('Z', ''));
         dateSpan.textContent = d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
         // Add separator only if there is already content (name/link)
         if (runNameEl.textContent.trim().length > 0) {
