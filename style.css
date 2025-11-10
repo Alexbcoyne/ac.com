@@ -354,6 +354,13 @@ main.snap-scroll-container {
   text-transform: uppercase;
   background: transparent;
   border-radius: var(--radius-sm);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+#timeRangeButtons button:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  cursor: pointer;
 }
 
 #topTracks {
