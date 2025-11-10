@@ -314,16 +314,13 @@
   // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
     const mapEl = document.getElementById('map');
     if (data.polyline && mapEl) {
-      console.log('Polyline data received:', data.polyline.substring(0, 50) + '...');
       const renderRoute = async () => {
         try {
           if (typeof L === 'undefined') {
-            console.log('Loading Leaflet library...');
             await loadLeafletLib();
           }
 
           if (!map) {
-            console.log('Initializing map...');
             map = L.map('map', {
               zoomSnap: 0.1,
               zoomDelta: 0.5
@@ -352,14 +349,11 @@
           }
 
           const coordinates = decodePolyline(data.polyline);
-          console.log('Decoded coordinates count:', coordinates.length);
-          console.log('First coordinate:', coordinates[0]);
           // decodePolyline returns [lng, lat]; Leaflet expects [lat, lng]
           const latlngs = coordinates.map(c => [c[1], c[0]]);
 
           try {
             routeLayer = L.polyline(latlngs, { color: '#FF0000', weight: 4 }).addTo(map);
-            console.log('Route layer added to map');
             map.fitBounds(routeLayer.getBounds(), { 
               padding: [20, 20],
               maxZoom: 16,
@@ -382,13 +376,10 @@
       // If the map element is already visible, render immediately, otherwise wait until it scrolls into view
       const rect = mapEl.getBoundingClientRect();
       if (rect.top < window.innerHeight && rect.bottom > 0) {
-        console.log('Map is visible, rendering immediately');
         renderRoute();
       } else if ('IntersectionObserver' in window) {
-        console.log('Map not visible, setting up IntersectionObserver');
         const obs = new IntersectionObserver((entries, observer) => {
           if (entries[0].isIntersecting) {
-            console.log('Map entered viewport, rendering now');
             observer.disconnect();
             renderRoute();
           }
@@ -396,12 +387,10 @@
         obs.observe(mapEl);
       } else {
         // fallback: load after a short delay
-        console.log('IntersectionObserver not supported, using timeout');
         setTimeout(renderRoute, 1500);
       }
     } else {
       // No polyline or no map element — hide map
-      console.log('No polyline data or map element not found', { hasPolyline: !!data.polyline, hasMapEl: !!mapEl });
       if (mapEl) mapEl.style.display = 'none';
     }
   
