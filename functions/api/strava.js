@@ -56,6 +56,22 @@ export async function onRequest(context) {
       });
     }
 
+    // Fetch detailed activity to get the polyline
+    let polyline = null;
+    if (latest.id) {
+      try {
+        const detailRes = await fetch(`https://www.strava.com/api/v3/activities/${latest.id}`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (detailRes.ok) {
+          const detailData = await detailRes.json();
+          polyline = detailData.map?.summary_polyline || null;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch activity detail for polyline:", e);
+      }
+    }
+
     // Calculate run streak and check if run today
     let streak = 0;
     let hasRunToday = false;
@@ -132,7 +148,7 @@ export async function onRequest(context) {
       pace: paceMinPerKm,
       heartRate: latest.average_heartrate || "N/A",
       date: latest.start_date_local,
-      polyline: latest.map?.summary_polyline || null,
+      polyline: polyline,
       streak: streak,
       hasRunToday: hasRunToday,
       streakStats: {
