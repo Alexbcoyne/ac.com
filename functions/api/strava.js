@@ -63,20 +63,25 @@ export async function onRequest(context) {
     let streakTotalTime = 0; // in seconds
 
     if (activities.length > 0) {
-      // Get current date in local timezone
+      // Get current UTC date and time
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       
-      // Check the most recent activity
+      // Parse the most recent activity's local date
       const mostRecentDate = new Date(activities[0].start_date_local);
+      
+      // Calculate the time difference in hours
+      const hoursDiff = (now - mostRecentDate) / (1000 * 60 * 60);
+      
+      // If the activity was within the last 24 hours, consider it as "today"
+      hasRunToday = hoursDiff < 24 && hoursDiff >= 0;
+      
+      // For streak calculation, normalize to day boundaries in local time
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const activityDay = new Date(
         mostRecentDate.getFullYear(),
         mostRecentDate.getMonth(),
         mostRecentDate.getDate()
       );
-      
-      // Check if the most recent activity was today
-      hasRunToday = activityDay.getTime() === today.getTime();
       
       // Calculate streak if run today or yesterday
       const daysSinceLastRun = Math.floor((today - activityDay) / (1000 * 60 * 60 * 24));
