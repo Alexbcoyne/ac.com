@@ -15,14 +15,15 @@ My personal site — a blend of tech, creativity and self-expression.
     - [x] Most Plays
 - [ ] Add Strava Features
     - [x] Last Activity
-    - [ ] Run Streak
+    - [x] Run Streak
+    - [x] Ping me - Slack integration
     - [ ] Pace v HR analysis
 - [ ] Add Guinness Guide to NYC
     - [ ] Leaderboards
     - [ ] User recommendations
-- [ ] Goals
-    - [ ] Achievement Badges
-    - [ ] Running Goal Tracker
+- [ ] Projects Section
+    - [ ] MTA Mapper
+    - [ ] 
 - [ ] Nerdy Bits
     - [ ] Uptime Tracker
 
@@ -30,7 +31,7 @@ My personal site — a blend of tech, creativity and self-expression.
 ## 🧠 Stack
 - **Frontend:** HTML, CSS, JS  
 - **APIs:** Spotify, Strava, Leaflet  
-- **Hosting:** Cloudflare Pages  
+- **Hosting:** Cloudflare Pages
 
 ## 🏁 Vision
 A personal hub that updates itself — showing what I’m listening to, running and building.
