@@ -640,5 +640,20 @@ main.snap-scroll-container {
 }
 
 /* =========================================================
+   Footer
+   ========================================================= */
+.site-footer {
+  padding: var(--space-xl) clamp(var(--space-lg), 5vw, var(--space-xl));
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+/* =========================================================
    End
    ========================================================= */
