@@ -79,56 +79,59 @@ export async function onRequest(context) {
     let streakTotalTime = 0; // in seconds
 
     if (activities.length > 0) {
-      // Get current date and time
-      const now = new Date();
-      
-      // Parse the most recent activity's local date
-      const mostRecentDate = new Date(activities[0].start_date_local);
-      
-      // Normalize to day boundaries in local time for accurate day comparison
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const activityDay = new Date(
-        mostRecentDate.getFullYear(),
-        mostRecentDate.getMonth(),
-        mostRecentDate.getDate()
-      );
-      
-      // Check if the activity was today (calendar day comparison)
-      hasRunToday = activityDay.getTime() === today.getTime();
-      
-      // Calculate streak if run today or yesterday
-      const daysSinceLastRun = Math.floor((today - activityDay) / (1000 * 60 * 60 * 24));
-      
-      if (daysSinceLastRun <= 1) {
-        // Start counting from the most recent activity
-        let currentDate = new Date(activities[0].start_date_local);
-        currentDate.setHours(0, 0, 0, 0);
+      // Derive athlete's local offset using latest activity timestamps
+      const latestSummary = activities[0];
+      const utcMs = Date.parse(latestSummary.start_date || ""); // e.g. '...Z'
+      const localAsUtcMs = Date.parse((latestSummary.start_date_local || "").replace("Z", "")); // treat local time as UTC to compute offset
+      const offsetMs = (isNaN(utcMs) || isNaN(localAsUtcMs)) ? 0 : (localAsUtcMs - utcMs);
 
-        for (const activity of activities) {
-          const activityDate = new Date(activity.start_date_local);
-          activityDate.setHours(0, 0, 0, 0);
+      // Compute today's date string in the athlete's local timezone (YYYY-MM-DD)
+      const nowLocal = new Date(Date.now() + offsetMs);
+      const todayLocalStr = nowLocal.toISOString().slice(0, 10);
 
-          // Calculate days between current activity and the last counted one
-          const dayDiff = Math.floor((currentDate - activityDate) / (1000 * 60 * 60 * 24));
-          
-          if (dayDiff === 0) {
-            // Same day as last checked, add to totals but continue
-            streakTotalDistance += activity.distance || 0;
-            streakTotalTime += activity.moving_time || 0;
-            continue;
-          } else if (dayDiff === 1) {
-            // Consecutive day, increment streak, add to totals, and update current date
-            streak++;
-            streakTotalDistance += activity.distance || 0;
-            streakTotalTime += activity.moving_time || 0;
-            currentDate = activityDate;
-          } else {
-            // Gap in days, streak ends here
-            break;
+      // Consider only running activities
+      const runActivities = activities.filter(a => a.type === 'Run');
+
+      // Has run today: any run whose local date matches today's local date
+      hasRunToday = runActivities.some(a => (a.start_date_local || '').slice(0, 10) === todayLocalStr);
+
+      // Streak calculation: only runs; build consecutive days based on local dates
+      if (runActivities.length > 0) {
+        const daysBetween = (aStr, bStr) => {
+          // Treat date strings as UTC midnights to compute whole-day differences
+          return Math.floor((Date.parse(aStr + 'T00:00:00Z') - Date.parse(bStr + 'T00:00:00Z')) / 86400000);
+        };
+
+        // Start from the most recent run day
+        let currentDay = (runActivities[0].start_date_local || '').slice(0, 10);
+
+        // Proceed only if latest run is today or yesterday
+        const daysSinceLastRun = daysBetween(todayLocalStr, currentDay);
+
+        if (daysSinceLastRun <= 1) {
+          for (const activity of runActivities) {
+            const day = (activity.start_date_local || '').slice(0, 10);
+            const dayDiff = daysBetween(currentDay, day);
+
+            if (dayDiff === 0) {
+              // Same day as last counted; accumulate totals
+              streakTotalDistance += activity.distance || 0;
+              streakTotalTime += activity.moving_time || 0;
+              continue;
+            } else if (dayDiff === 1) {
+              // Consecutive day: increment streak, accumulate, and move window
+              streak++;
+              streakTotalDistance += activity.distance || 0;
+              streakTotalTime += activity.moving_time || 0;
+              currentDay = day;
+            } else {
+              // Gap detected; streak ends
+              break;
+            }
           }
+          // Include the most recent run day itself
+          streak++;
         }
-        // Add 1 to include the most recent day
-        streak++;
       }
     }
 
