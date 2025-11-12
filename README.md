@@ -23,7 +23,7 @@ My personal site — a blend of tech, creativity and self-expression.
     - [ ] User recommendations
 - [ ] Projects Section
     - [ ] MTA Mapper
-    - [ ] 
+    - [ ] AI Integration
 - [ ] Nerdy Bits
     - [ ] Uptime Tracker
 
