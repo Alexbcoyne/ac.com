@@ -248,6 +248,17 @@ main.snap-scroll-container {
   padding: 0.75rem;
 }
 
+.btn-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-disabled:hover {
+  background: transparent;
+  color: var(--text-primary);
+}
+
 /* =========================================================
    About
    ========================================================= */
