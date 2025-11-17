@@ -10,6 +10,10 @@ My personal site — a blend of tech, creativity and self-expression.
 ## 🚀 Roadmap
 - [x] Create Lander
 - [x] Add Dark Mode
+- [ ] AI Integration
+    - [x] AC AI created on Raspberry Pi
+    - [ ] Create Tokens
+    - [ ] Deploy it to website
 - [x] Add Spotify Features
     - [x] Currently Listening
     - [x] Most Plays
@@ -24,7 +28,6 @@ My personal site — a blend of tech, creativity and self-expression.
 - [ ] Projects Section
     - [ ] MTA Mapper
     - [ ] AI on Raspberry Pi
-    - [ ] AI Integration
 - [ ] Nerdy Bits
     - [ ] Uptime Tracker
 
