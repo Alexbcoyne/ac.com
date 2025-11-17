@@ -13,6 +13,7 @@ My personal site — a blend of tech, creativity and self-expression.
 - [ ] AI Integration
     - [x] AC AI created on Raspberry Pi
     - [x] Deploy it to website
+    - [ ] Better UX
 - [x] Add Spotify Features
     - [x] Currently Listening
     - [x] Most Plays
