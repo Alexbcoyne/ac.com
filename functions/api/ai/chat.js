@@ -38,11 +38,18 @@ export async function onRequest(context) {
     }
 
     // Forward request to Pi FastAPI /v1/chat
+    // AbortSignal with generous timeout for model inference
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds
+    
     const upstreamRes = await fetch(`${host}/v1/chat`, {
       method: 'POST',
       headers,
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (!upstreamRes.ok) {
       const text = await upstreamRes.text();
@@ -56,6 +63,13 @@ export async function onRequest(context) {
     const reply = await upstreamRes.text(); // keep as text to avoid double parse issues
     return new Response(reply, { headers: { 'Content-Type': 'application/json' } });
   } catch (e) {
+    // Handle abort/timeout gracefully
+    if (e.name === 'AbortError') {
+      return new Response(JSON.stringify({ error: 'Request timeout', details: 'Model inference took too long (>120s)' }), {
+        status: 504,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     return new Response(JSON.stringify({ error: 'Proxy failure', details: e.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
