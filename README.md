@@ -12,8 +12,7 @@ My personal site — a blend of tech, creativity and self-expression.
 - [x] Add Dark Mode
 - [ ] AI Integration
     - [x] AC AI created on Raspberry Pi
-    - [ ] Create Tokens
-    - [ ] Deploy it to website
+    - [x] Deploy it to website
 - [x] Add Spotify Features
     - [x] Currently Listening
     - [x] Most Plays
