@@ -169,11 +169,12 @@
       });
     })();
 
-    // Simple front-end only demo chat
+    // Chat integration with backend proxy (/api/ai/chat)
     (function() {
       const form = document.getElementById('chatForm');
       const input = document.getElementById('chatInput');
       const messages = document.getElementById('messages');
+      let pendingBubble = null;
 
       function appendMessage(role, text) {
         const msg = document.createElement('div');
@@ -184,25 +185,38 @@
         msg.appendChild(bubble);
         messages.appendChild(msg);
         messages.scrollTop = messages.scrollHeight;
+        return bubble;
       }
 
-      form.addEventListener('submit', (e) => {
+      async function sendToModel(userText) {
+        try {
+          const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [{ role: 'user', content: userText }] })
+          });
+          if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(errorText || 'Upstream failed');
+          }
+          const data = await res.json();
+          return data.reply || '[No reply]';
+        } catch (e) {
+          return `Error: ${e.message}`;
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const text = input.value.trim();
         if (!text) return;
         appendMessage('user', text);
         input.value = '';
-
-        setTimeout(() => {
-          const replies = [
-            "Work in progress — the real brain arrives soon!",
-            "Appreciate the ping. I'm still brewing ☕️",
-            "I'm a preview build. Expect witty placeholders for now.",
-            "Echo: " + text
-          ];
-          const reply = replies[Math.floor(Math.random() * replies.length)];
-          appendMessage('assistant', reply);
-        }, 500);
+        pendingBubble = appendMessage('assistant', '…');
+        pendingBubble.textContent = 'Thinking…';
+        const reply = await sendToModel(text);
+        pendingBubble.textContent = reply;
+        pendingBubble = null;
       });
     })();
   </script>
