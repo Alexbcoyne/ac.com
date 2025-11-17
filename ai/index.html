@@ -169,12 +169,13 @@
       });
     })();
 
-    // Chat integration with backend proxy (/api/ai/chat)
+    // Chat integration with streaming backend proxy (/api/ai/stream)
     (function() {
       const form = document.getElementById('chatForm');
       const input = document.getElementById('chatInput');
       const messages = document.getElementById('messages');
       let pendingBubble = null;
+      let isProcessing = false;
 
       function appendMessage(role, text) {
         const msg = document.createElement('div');
@@ -188,35 +189,74 @@
         return bubble;
       }
 
-      async function sendToModel(userText) {
+      async function sendToModelStreaming(userText, bubble) {
         try {
-          const res = await fetch('/api/ai/chat', {
+          const res = await fetch('/api/ai/stream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ messages: [{ role: 'user', content: userText }] })
           });
+
           if (!res.ok) {
             const errorText = await res.text();
             throw new Error(errorText || 'Upstream failed');
           }
-          const data = await res.json();
-          return data.reply || '[No reply]';
+
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let accumulatedText = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6).trim();
+                if (data === '[DONE]') continue;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta) {
+                    const token = parsed.choices[0].delta.content || '';
+                    accumulatedText += token;
+                    bubble.textContent = accumulatedText;
+                    messages.scrollTop = messages.scrollHeight;
+                  }
+                } catch (e) {
+                  // Ignore malformed JSON chunks
+                }
+              }
+            }
+          }
+
+          if (!accumulatedText) {
+            bubble.textContent = '[No response received]';
+          }
         } catch (e) {
-          return `Error: ${e.message}`;
+          bubble.textContent = `Error: ${e.message}`;
         }
       }
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isProcessing) return;
+
         const text = input.value.trim();
         if (!text) return;
+
+        isProcessing = true;
         appendMessage('user', text);
         input.value = '';
-        pendingBubble = appendMessage('assistant', '…');
-        pendingBubble.textContent = 'Thinking…';
-        const reply = await sendToModel(text);
-        pendingBubble.textContent = reply;
+        pendingBubble = appendMessage('assistant', '');
+        
+        await sendToModelStreaming(text, pendingBubble);
+        
         pendingBubble = null;
+        isProcessing = false;
       });
     })();
   </script>
