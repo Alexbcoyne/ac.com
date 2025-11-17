@@ -249,9 +249,8 @@ main.snap-scroll-container {
 }
 
 .btn-disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
+  opacity: 0.5;
+  cursor: pointer;
 }
 
 .btn-disabled:hover {

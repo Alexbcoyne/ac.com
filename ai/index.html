@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AC AI — Chat</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    /* Page-local styles to mimic a clean chat UI */
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .chat-app {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100vh;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) clamp(var(--space-lg), 5vw, var(--space-xl));
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .chat-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .chat-header .brand .beta {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      color: var(--text-secondary);
+    }
+
+    .chat-main {
+      overflow-y: auto;
+      background: var(--bg-secondary);
+      padding: var(--space-xl) clamp(var(--space-lg), 5vw, var(--space-xl));
+    }
+
+    .messages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .msg {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .msg.user { justify-content: flex-end; }
+
+    .bubble {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      line-height: 1.4;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .msg.user .bubble {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border-color: var(--text-primary);
+    }
+
+    .chat-footer {
+      padding: var(--space-md) clamp(var(--space-lg), 5vw, var(--space-xl));
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-primary);
+    }
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .input-row input[type="text"] {
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      outline: none;
+    }
+    .input-row input[type="text"]::placeholder { color: var(--text-secondary); }
+    .input-row button {
+      padding: 0.9rem 1.2rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+    }
+    .helper-text {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-app">
+    <header class="chat-header">
+      <div class="brand">AC AI <span class="beta">beta</span></div>
+      <button class="btn theme-toggle" aria-label="Toggle dark mode"><span class="theme-toggle-text">🌜</span></button>
+    </header>
+
+    <main class="chat-main">
+      <div class="messages" id="messages">
+        <div class="msg assistant">
+          <div class="bubble">Hi! I’m AC AI — a satirical, work‑in‑progress version of Alex. Ask me anything. ☕️</div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="chat-footer">
+      <form class="input-row" id="chatForm">
+        <input id="chatInput" type="text" placeholder="Message AC AI" autocomplete="off" />
+        <button class="btn" type="submit">Send</button>
+      </form>
+      <div class="helper-text">FYI: This is a preview — responses are playful placeholders for now.</div>
+    </footer>
+  </div>
+
+  <script>
+    // Theme toggle (reuse site logic)
+    (function() {
+      const themeToggle = document.querySelector('.theme-toggle');
+      const themeToggleText = themeToggle && themeToggle.querySelector('.theme-toggle-text');
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (savedTheme) {
+        document.documentElement.dataset.theme = savedTheme;
+        if (themeToggleText) themeToggleText.textContent = savedTheme === 'dark' ? '🌞' : '🌜';
+      } else if (prefersDark) {
+        document.documentElement.dataset.theme = 'dark';
+        if (themeToggleText) themeToggleText.textContent = '🌞';
+      } else {
+        document.documentElement.dataset.theme = 'light';
+        if (themeToggleText) themeToggleText.textContent = '🌜';
+      }
+
+      themeToggle && themeToggle.addEventListener('click', () => {
+        const isDark = document.documentElement.dataset.theme === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.dataset.theme = newTheme;
+        if (themeToggleText) themeToggleText.textContent = newTheme === 'dark' ? '🌞' : '🌜';
+        localStorage.setItem('theme', newTheme);
+      });
+    })();
+
+    // Simple front-end only demo chat
+    (function() {
+      const form = document.getElementById('chatForm');
+      const input = document.getElementById('chatInput');
+      const messages = document.getElementById('messages');
+
+      function appendMessage(role, text) {
+        const msg = document.createElement('div');
+        msg.className = 'msg ' + role;
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+        msg.appendChild(bubble);
+        messages.appendChild(msg);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+        appendMessage('user', text);
+        input.value = '';
+
+        setTimeout(() => {
+          const replies = [
+            "Work in progress — the real brain arrives soon!",
+            "Appreciate the ping. I'm still brewing ☕️",
+            "I'm a preview build. Expect witty placeholders for now.",
+            "Echo: " + text
+          ];
+          const reply = replies[Math.floor(Math.random() * replies.length)];
+          appendMessage('assistant', reply);
+        }, 500);
+      });
+    })();
+  </script>
+</body>
+</html>
