@@ -1,13 +1,6 @@
 export async function onRequest(context) {
   const { request, env } = context;
-  const { SLACK_WEBHOOK_URL } = env;
-
-  if (!SLACK_WEBHOOK_URL) {
-    return new Response(JSON.stringify({ error: "Slack webhook URL not configured" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
-  }
+  const { SLACK_WEBHOOK_URL, SLACK_HEALTH_WEBHOOK_URL } = env;
 
   // Optional payload from client to customize the message
   let payload = {};
@@ -25,10 +18,19 @@ export async function onRequest(context) {
   // Build Slack message based on reason
   let title = '*Run Status Check*';
   let text = "<!channel> Hey Alex! Someone checked your website and noticed you haven't gone for a run today! 🏃‍♂️\nThink you'll head out for one? 🤔";
+  let webhookUrl = SLACK_WEBHOOK_URL;
 
   if (reason === 'strava-error') {
     title = '*Strava Fetch Failed*';
     text = `<!channel> Heads up: Strava API request failed on alexandercoyne.com.\n• Fallback: showing cached data to users.\n• Details: ${details || 'n/a'}`;
+    webhookUrl = SLACK_HEALTH_WEBHOOK_URL || SLACK_WEBHOOK_URL; // Use health channel or fallback
+  }
+
+  if (!webhookUrl) {
+    return new Response(JSON.stringify({ error: "Slack webhook URL not configured" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   // Server-side throttle using Cloudflare cache (1 ping/hour per reason)
@@ -47,7 +49,7 @@ export async function onRequest(context) {
   }
 
   try {
-    const response = await fetch(SLACK_WEBHOOK_URL, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
