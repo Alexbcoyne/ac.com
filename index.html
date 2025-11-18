@@ -524,11 +524,8 @@ function decodePolyline(str, precision = 5) {
   // Main initialization (clean, with safety checks)
   function safeInit() {
     try {
-      if (typeof loadStrava === 'function') {
-        loadStrava();
-        setInterval(loadStrava, 60000 * 10); // refresh every 10 minutes
-      }
-
+      // Strava already initialized above, don't duplicate intervals
+      
       // Time range buttons
       document.querySelectorAll('#timeRangeButtons button').forEach(btn => {
         btn.addEventListener('click', () => updateTopTracks(btn.dataset.range));
