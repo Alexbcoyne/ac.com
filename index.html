@@ -224,6 +224,23 @@
         document.getElementById('topTracks').textContent = "Error loading top tracks";
       }
     }
+    // Slack ping rate-limiter helper (1 ping/hour max)
+    function maybePingSlack(reason, details) {
+      try {
+        const key = 'lastSlackPingAt';
+        const minIntervalMs = 60 * 60 * 1000; // 1 hour
+        const last = parseInt(localStorage.getItem(key) || '0', 10);
+        if (Date.now() - last < minIntervalMs) return;
+        fetch('/api/slack/ping-alex', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason, details })
+        }).then(() => {
+          localStorage.setItem(key, String(Date.now()));
+        }).catch(() => {});
+      } catch (_) {}
+    }
+
     async function loadStrava() {
   try {
     const res = await fetch("/api/strava");
@@ -236,10 +253,14 @@
         const cached = JSON.parse(cachedData);
         renderStravaData(cached);
         document.getElementById("runName").innerHTML += ' <span style="font-size: 0.85em; color: var(--text-secondary);">(cached)</span>';
+        // Notify via Slack (rate-limited)
+        maybePingSlack('strava-error', data.details || data.error || 'Unknown error');
         return;
       }
       document.getElementById("runName").textContent = "Error loading Strava data";
       document.getElementById("runStatus").textContent = "Error loading data";
+      // Notify via Slack when no cache available
+      maybePingSlack('strava-error', data.details || data.error || 'Unknown error');
       return;
     }
     
@@ -255,11 +276,15 @@
       const cached = JSON.parse(cachedData);
       renderStravaData(cached);
       document.getElementById("runName").innerHTML += ' <span style="font-size: 0.85em; color: var(--text-secondary);">(cached)</span>';
+      // Notify via Slack (rate-limited)
+      maybePingSlack('strava-error', err?.message || 'Network error');
       return;
     }
     console.error("loadStrava error:", err);
     document.getElementById("runName").textContent = "Network error";
     document.getElementById("runStatus").textContent = "Error loading data";
+    // No cache available - still notify
+    maybePingSlack('strava-error', err?.message || 'Network error');
   }
 }
 
