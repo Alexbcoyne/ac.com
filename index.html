@@ -567,6 +567,16 @@ function decodePolyline(str, precision = 5) {
   } else {
     safeInit();
   }
+
+  let stravaInterval;
+stravaInterval = setInterval(loadStrava, 60000 * 10);
+window.addEventListener('beforeunload', () => clearInterval(stravaInterval));
+
+let lastActivity = Date.now();
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) clearInterval(stravaInterval);
+  else stravaInterval = setInterval(loadStrava, 60000 * 10);
+});
 </script>
   <footer class="site-footer" role="contentinfo">
     <p>Powered by caffeine & curiosity</p>
