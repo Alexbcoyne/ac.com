@@ -230,10 +230,41 @@
     const data = await res.json();
 
     if (data.error) {
+      // Try to load cached data if API fails
+      const cachedData = localStorage.getItem('stravaCache');
+      if (cachedData) {
+        const cached = JSON.parse(cachedData);
+        renderStravaData(cached);
+        document.getElementById("runName").innerHTML += ' <span style="font-size: 0.85em; color: var(--text-secondary);">(cached)</span>';
+        return;
+      }
       document.getElementById("runName").textContent = "Error loading Strava data";
       document.getElementById("runStatus").textContent = "Error loading data";
       return;
     }
+    
+    // Cache successful response
+    localStorage.setItem('stravaCache', JSON.stringify(data));
+    localStorage.setItem('stravaCacheTime', Date.now());
+    
+    renderStravaData(data);
+  } catch (err) {
+    // On network error, try cache
+    const cachedData = localStorage.getItem('stravaCache');
+    if (cachedData) {
+      const cached = JSON.parse(cachedData);
+      renderStravaData(cached);
+      document.getElementById("runName").innerHTML += ' <span style="font-size: 0.85em; color: var(--text-secondary);">(cached)</span>';
+      return;
+    }
+    console.error("loadStrava error:", err);
+    document.getElementById("runName").textContent = "Network error";
+    document.getElementById("runStatus").textContent = "Error loading data";
+  }
+}
+
+function renderStravaData(data) {
+  try {
 
     const runNameEl = document.getElementById("runName");
     const runStatusEl = document.getElementById("runStatus");
@@ -401,7 +432,6 @@
     document.getElementById("runName").textContent = "Error loading run data";
   }
 }
-
 // Polyline decoder (Google/Strava encoded polyline to [lng, lat] array)
 function decodePolyline(str, precision = 5) {
   let index = 0, lat = 0, lng = 0, coordinates = [];
