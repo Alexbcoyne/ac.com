@@ -198,6 +198,11 @@
           });
 
           if (!res.ok) {
+            // Check for 502 Bad Gateway (AI offline)
+            if (res.status === 502) {
+              bubble.textContent = "Alex has unplugged me for now. Not sure if it's for maintenance or a break from me. Please return later. 🔌";
+              return;
+            }
             const errorText = await res.text();
             throw new Error(errorText || 'Upstream failed');
           }
