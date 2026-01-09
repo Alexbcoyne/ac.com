@@ -107,13 +107,18 @@ export async function onRequest(context) {
 
       // Group activities by date and track which normalized types occurred on each day
       const dayMap = new Map(); // date -> Set of normalized activity types
+      const typesSeen = new Set(); // Debug: track all types we see
       for (const activity of activities) {
         const day = (activity.start_date_local || '').slice(0, 10);
         if (!dayMap.has(day)) {
           dayMap.set(day, new Set());
         }
-        dayMap.get(day).add(normalizeType(activity.type));
+        const normalized = normalizeType(activity.type);
+        dayMap.get(day).add(normalized);
+        typesSeen.add(`${activity.type} -> ${normalized}`); // Debug
       }
+      console.log('Activity types seen:', Array.from(typesSeen).join(', ')); // Debug
+      console.log('Day map:', Array.from(dayMap.entries()).slice(0, 10)); // Debug first 10 days
 
       // Sort days in descending order
       const sortedDays = Array.from(dayMap.keys()).sort((a, b) => b.localeCompare(a));
