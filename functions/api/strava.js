@@ -98,9 +98,9 @@ export async function onRequest(context) {
         return Math.floor((Date.parse(aStr + 'T00:00:00Z') - Date.parse(bStr + 'T00:00:00Z')) / 86400000);
       };
 
-      // Normalize activity types: treat VirtualRun as Run
+      // Normalize activity types
       const normalizeType = (type) => {
-        if (type === 'Run' || type === 'VirtualRun') return 'Run';
+        if (type === 'Run') return 'Run';
         if (type === 'WeightTraining') return 'Gym';
         return 'Other';
       };
