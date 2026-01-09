@@ -129,58 +129,28 @@ export async function onRequest(context) {
 
         // Only calculate streaks if most recent activity is today or yesterday
         if (daysSinceLastActivity <= 1) {
-          // Calculate total consecutive workout days
+          // Calculate total consecutive workout days and count activity types
           let expectedDay = mostRecentDay;
+          const streakDays = [];
+          
           for (const day of sortedDays) {
             const dayDiff = daysBetween(expectedDay, day);
             if (dayDiff === 0) {
               totalStreak++;
+              streakDays.push(day);
               expectedDay = new Date(Date.parse(day + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
             } else {
               break;
             }
           }
 
-          // Calculate streak for each activity type (consecutive days with that type)
-          const calculateTypeStreak = (activityType) => {
-            let streak = 0;
-            let expectedDay = null;
-            
-            // Find the most recent day with this activity type
-            for (const day of sortedDays) {
-              if (dayMap.get(day).has(activityType)) {
-                expectedDay = day;
-                break;
-              }
-            }
-            
-            if (!expectedDay) return 0;
-            
-            // Check if the most recent activity of this type is recent enough
-            const daysSinceLastOfType = daysBetween(todayLocalStr, expectedDay);
-            if (daysSinceLastOfType > 1) return 0;
-            
-            // Count consecutive days with this activity type
-            for (const day of sortedDays) {
-              if (!dayMap.get(day).has(activityType)) {
-                continue; // Skip days without this activity
-              }
-              
-              const dayDiff = daysBetween(expectedDay, day);
-              if (dayDiff === 0) {
-                streak++;
-                expectedDay = new Date(Date.parse(day + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
-              } else if (dayDiff > 0) {
-                // Gap in this activity type - streak broken
-                break;
-              }
-            }
-            return streak;
-          };
-
-          runStreak = calculateTypeStreak('Run');
-          gymStreak = calculateTypeStreak('Gym');
-          otherStreak = calculateTypeStreak('Other');
+          // Count occurrences of each activity type within the streak days
+          for (const day of streakDays) {
+            const types = dayMap.get(day);
+            if (types.has('Run')) runStreak++;
+            if (types.has('Gym')) gymStreak++;
+            if (types.has('Other')) otherStreak++;
+          }
         }
       }
     }
