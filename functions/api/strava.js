@@ -47,10 +47,12 @@ export async function onRequest(context) {
     }
 
     const activities = await actRes.json();
-    const latest = activities[0];
+    
+    // Find the latest Run or Ride activity (skip gym/other workouts)
+    const latest = activities.find(a => a.type === 'Run' || a.type === 'Ride');
 
     if (!latest) {
-      return new Response(JSON.stringify({ error: "No activities found" }), {
+      return new Response(JSON.stringify({ error: "No run or ride activities found" }), {
         status: 200,
         headers: { "Content-Type": "application/json" }
       });
