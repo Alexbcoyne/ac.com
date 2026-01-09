@@ -485,7 +485,7 @@ main.snap-scroll-container {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-md);
 }
 
 .streak-title {
@@ -495,48 +495,39 @@ main.snap-scroll-container {
   color: var(--text-primary);
 }
 
-.streak-count {
-  font-size: clamp(2.2rem, 6vw, 3.2rem);
-  font-weight: 800;
-  line-height: 1;
-  margin: 0;
-  color: var(--text-primary);
+.workout-types {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
 }
 
-.streak-label {
-  text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.07em;
-  color: var(--text-secondary);
-  margin: 0 0 var(--space-sm);
-}
-
-.streak-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* force distance and time side-by-side */
-  gap: var(--space-sm);
-  width: 100%;
-}
-
-.streak-stats .stat-item {
-  background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
+.workout-type-item {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
 }
 
-.streak-stat-label {
-  font-size: 12px;
+.workout-type-label {
+  font-size: 14px;
   color: var(--text-secondary);
-  letter-spacing: 0.03em;
+  text-transform: capitalize;
 }
 
-.streak-stat-value {
-  font-size: 1rem;
-  font-weight: 700;
+.workout-type-count {
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1;
   color: var(--text-primary);
+}
+
+.workout-type-divider {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  margin: 0 var(--space-xs);
 }
 
 /* =========================================================

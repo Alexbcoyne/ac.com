@@ -92,24 +92,28 @@
               
               <!-- Current Streak section -->
               <div class="streak-status">
-                <h3 class="streak-title">Running Streak</h3>
-                <p class="streak-count" id="streakCount">-</p>
-                <p class="streak-label">days</p>
-
-                <div class="streak-stats">
-                  <div class="stat-item">
-                    <div class="streak-stat-label">Distance</div>
-                    <div class="streak-stat-value" id="streakDistance">-</div>
+                <h3 class="streak-title">Workout Streak</h3>
+                
+                <div class="workout-types">
+                  <div class="workout-type-item">
+                    <div class="workout-type-label">Run</div>
+                    <div class="workout-type-count" id="runStreak">-</div>
                   </div>
-                  <div class="stat-item">
-                    <div class="streak-stat-label">Time</div>
-                    <div class="streak-stat-value" id="streakTime">-</div>
+                  <div class="workout-type-divider">|</div>
+                  <div class="workout-type-item">
+                    <div class="workout-type-label">Gym</div>
+                    <div class="workout-type-count" id="gymStreak">-</div>
+                  </div>
+                  <div class="workout-type-divider">|</div>
+                  <div class="workout-type-item">
+                    <div class="workout-type-label">Other</div>
+                    <div class="workout-type-count" id="otherStreak">-</div>
                   </div>
                 </div>
 
-                <!-- Has Alex run today section -->
+                <!-- Has Alex worked out today section -->
                 <div class="today-status">
-                  <p>Has Alex run today? <span id="runStatus">Loading...</span></p>
+                  <p>Has Alex worked out today? <span id="runStatus">Loading...</span></p>
                   <button id="pingAlex" class="btn" style="display: none;">Ping Alex on Slack</button>
                 </div>
               </div>
@@ -295,8 +299,8 @@ function renderStravaData(data) {
     const runStatusEl = document.getElementById("runStatus");
     const pingButton = document.getElementById("pingAlex");
 
-    // Update run status
-    if (data.hasRunToday) {
+    // Update workout status
+    if (data.hasWorkedOutToday) {
       runStatusEl.textContent = "✅ Yes!";
       pingButton.style.display = "none";
     } else {
@@ -361,13 +365,10 @@ function renderStravaData(data) {
     // Display run stats
     document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
     
-    // Update streak display and stats
-    const streakCount = document.getElementById("streakCount");
-    const stats = data.streakStats || {};
-    
-    streakCount.textContent = data.streak || '0';
-    document.getElementById("streakDistance").textContent = stats.totalDistance ? `${stats.totalDistance}km` : '-';
-    document.getElementById("streakTime").textContent = stats.totalTime || '-';
+    // Update workout streak displays by type
+    document.getElementById("runStreak").textContent = data.runStreak || '0';
+    document.getElementById("gymStreak").textContent = data.gymStreak || '0';
+    document.getElementById("otherStreak").textContent = data.otherStreak || '0';
 
   // If we have polyline data, lazily load Leaflet and draw the route when the map element is visible
     const mapEl = document.getElementById('map');

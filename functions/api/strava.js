@@ -72,11 +72,11 @@ export async function onRequest(context) {
       }
     }
 
-    // Calculate run streak and check if run today
-    let streak = 0;
-    let hasRunToday = false;
-    let streakTotalDistance = 0; // in meters
-    let streakTotalTime = 0; // in seconds
+    // Calculate workout streaks by type: Run, Gym (WeightTraining), Other
+    let runStreak = 0;
+    let gymStreak = 0;
+    let otherStreak = 0;
+    let hasWorkedOutToday = false;
 
     if (activities.length > 0) {
       // Derive athlete's local offset using latest activity timestamps
@@ -89,50 +89,49 @@ export async function onRequest(context) {
       const nowLocal = new Date(Date.now() + offsetMs);
       const todayLocalStr = nowLocal.toISOString().slice(0, 10);
 
-      // Consider only running activities
+      // Categorize activities
       const runActivities = activities.filter(a => a.type === 'Run');
+      const gymActivities = activities.filter(a => a.type === 'WeightTraining');
+      const otherActivities = activities.filter(a => a.type !== 'Run' && a.type !== 'WeightTraining');
 
-      // Has run today: any run whose local date matches today's local date
-      hasRunToday = runActivities.some(a => (a.start_date_local || '').slice(0, 10) === todayLocalStr);
+      // Has worked out today: any activity whose local date matches today's local date
+      hasWorkedOutToday = activities.some(a => (a.start_date_local || '').slice(0, 10) === todayLocalStr);
 
-      // Streak calculation: only runs; build consecutive days based on local dates
-      if (runActivities.length > 0) {
-        const daysBetween = (aStr, bStr) => {
-          // Treat date strings as UTC midnights to compute whole-day differences
-          return Math.floor((Date.parse(aStr + 'T00:00:00Z') - Date.parse(bStr + 'T00:00:00Z')) / 86400000);
-        };
+      const daysBetween = (aStr, bStr) => {
+        // Treat date strings as UTC midnights to compute whole-day differences
+        return Math.floor((Date.parse(aStr + 'T00:00:00Z') - Date.parse(bStr + 'T00:00:00Z')) / 86400000);
+      };
 
-        // Start from the most recent run day
-        let currentDay = (runActivities[0].start_date_local || '').slice(0, 10);
+      // Calculate streak for each type
+      const calculateStreak = (activityList) => {
+        if (activityList.length === 0) return 0;
+        
+        let streak = 0;
+        let currentDay = (activityList[0].start_date_local || '').slice(0, 10);
+        const daysSinceLastActivity = daysBetween(todayLocalStr, currentDay);
 
-        // Proceed only if latest run is today or yesterday
-        const daysSinceLastRun = daysBetween(todayLocalStr, currentDay);
-
-        if (daysSinceLastRun <= 1) {
-          for (const activity of runActivities) {
+        if (daysSinceLastActivity <= 1) {
+          for (const activity of activityList) {
             const day = (activity.start_date_local || '').slice(0, 10);
             const dayDiff = daysBetween(currentDay, day);
 
             if (dayDiff === 0) {
-              // Same day as last counted; accumulate totals
-              streakTotalDistance += activity.distance || 0;
-              streakTotalTime += activity.moving_time || 0;
               continue;
             } else if (dayDiff === 1) {
-              // Consecutive day: increment streak, accumulate, and move window
               streak++;
-              streakTotalDistance += activity.distance || 0;
-              streakTotalTime += activity.moving_time || 0;
               currentDay = day;
             } else {
-              // Gap detected; streak ends
               break;
             }
           }
-          // Include the most recent run day itself
           streak++;
         }
-      }
+        return streak;
+      };
+
+      runStreak = calculateStreak(runActivities);
+      gymStreak = calculateStreak(gymActivities);
+      otherStreak = calculateStreak(otherActivities);
     }
 
     // 3️⃣ Format response
@@ -149,12 +148,10 @@ export async function onRequest(context) {
       heartRate: latest.average_heartrate || "N/A",
       date: latest.start_date_local,
       polyline: polyline,
-      streak: streak,
-      hasRunToday: hasRunToday,
-      streakStats: {
-        totalDistance: (streakTotalDistance / 1000).toFixed(2), // Convert to km
-        totalTime: formatTime(streakTotalTime)
-      }
+      runStreak: runStreak,
+      gymStreak: gymStreak,
+      otherStreak: otherStreak,
+      hasWorkedOutToday: hasWorkedOutToday
     }), {
       headers: { "Content-Type": "application/json" }
     });
