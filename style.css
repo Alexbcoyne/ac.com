@@ -495,6 +495,29 @@ main.snap-scroll-container {
   color: var(--text-primary);
 }
 
+.total-streak {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.total-streak-count {
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.total-streak-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 .workout-types {
   display: flex;
   align-items: center;
@@ -517,7 +540,7 @@ main.snap-scroll-container {
 }
 
 .workout-type-count {
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 800;
   line-height: 1;
   color: var(--text-primary);

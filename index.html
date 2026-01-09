@@ -94,6 +94,11 @@
               <div class="streak-status">
                 <h3 class="streak-title">Workout Streak</h3>
                 
+                <div class="total-streak">
+                  <p class="total-streak-count" id="totalStreak">-</p>
+                  <p class="total-streak-label">consecutive days</p>
+                </div>
+
                 <div class="workout-types">
                   <div class="workout-type-item">
                     <div class="workout-type-label">Run</div>
@@ -364,6 +369,9 @@ function renderStravaData(data) {
 
     // Display run stats
     document.getElementById("runStats").textContent = `${data.distance} km | ${data.pace} min/km | ❤️ ${data.heartRate}`;
+    
+    // Update total consecutive workout days
+    document.getElementById("totalStreak").textContent = data.totalStreak || '0';
     
     // Update workout streak displays by type
     document.getElementById("runStreak").textContent = data.runStreak || '0';

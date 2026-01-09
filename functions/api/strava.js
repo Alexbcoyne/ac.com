@@ -32,8 +32,8 @@ export async function onRequest(context) {
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
 
-    // 2️⃣ Fetch recent activities (last 30 days worth)
-    const actRes = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=30", {
+    // 2️⃣ Fetch recent activities (up to 200 for long streaks with multiple daily workouts)
+    const actRes = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=200", {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
@@ -72,10 +72,11 @@ export async function onRequest(context) {
       }
     }
 
-    // Calculate workout streaks by type: Run, Gym (WeightTraining), Other
+    // Calculate workout streaks by type: Run, Gym (WeightTraining), Other, and total consecutive days
     let runStreak = 0;
     let gymStreak = 0;
     let otherStreak = 0;
+    let totalStreak = 0;
     let hasWorkedOutToday = false;
 
     if (activities.length > 0) {
@@ -89,11 +90,6 @@ export async function onRequest(context) {
       const nowLocal = new Date(Date.now() + offsetMs);
       const todayLocalStr = nowLocal.toISOString().slice(0, 10);
 
-      // Categorize activities
-      const runActivities = activities.filter(a => a.type === 'Run');
-      const gymActivities = activities.filter(a => a.type === 'WeightTraining');
-      const otherActivities = activities.filter(a => a.type !== 'Run' && a.type !== 'WeightTraining');
-
       // Has worked out today: any activity whose local date matches today's local date
       hasWorkedOutToday = activities.some(a => (a.start_date_local || '').slice(0, 10) === todayLocalStr);
 
@@ -102,36 +98,78 @@ export async function onRequest(context) {
         return Math.floor((Date.parse(aStr + 'T00:00:00Z') - Date.parse(bStr + 'T00:00:00Z')) / 86400000);
       };
 
-      // Calculate streak for each type
-      const calculateStreak = (activityList) => {
-        if (activityList.length === 0) return 0;
-        
-        let streak = 0;
-        let currentDay = (activityList[0].start_date_local || '').slice(0, 10);
-        const daysSinceLastActivity = daysBetween(todayLocalStr, currentDay);
+      // Group activities by date and track which types occurred on each day
+      const dayMap = new Map(); // date -> Set of activity types
+      for (const activity of activities) {
+        const day = (activity.start_date_local || '').slice(0, 10);
+        if (!dayMap.has(day)) {
+          dayMap.set(day, new Set());
+        }
+        dayMap.get(day).add(activity.type);
+      }
 
+      // Sort days in descending order
+      const sortedDays = Array.from(dayMap.keys()).sort((a, b) => b.localeCompare(a));
+
+      if (sortedDays.length > 0) {
+        const mostRecentDay = sortedDays[0];
+        const daysSinceLastActivity = daysBetween(todayLocalStr, mostRecentDay);
+
+        // Only calculate streaks if most recent activity is today or yesterday
         if (daysSinceLastActivity <= 1) {
-          for (const activity of activityList) {
-            const day = (activity.start_date_local || '').slice(0, 10);
-            const dayDiff = daysBetween(currentDay, day);
-
+          // Calculate total consecutive workout days
+          let expectedDay = mostRecentDay;
+          for (const day of sortedDays) {
+            const dayDiff = daysBetween(expectedDay, day);
             if (dayDiff === 0) {
-              continue;
-            } else if (dayDiff === 1) {
-              streak++;
-              currentDay = day;
+              totalStreak++;
+              expectedDay = new Date(Date.parse(day + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
             } else {
               break;
             }
           }
-          streak++;
-        }
-        return streak;
-      };
 
-      runStreak = calculateStreak(runActivities);
-      gymStreak = calculateStreak(gymActivities);
-      otherStreak = calculateStreak(otherActivities);
+          // Calculate streak for each activity type (consecutive days with that type)
+          const calculateTypeStreak = (activityType) => {
+            let streak = 0;
+            let expectedDay = mostRecentDay;
+            
+            for (const day of sortedDays) {
+              const dayDiff = daysBetween(expectedDay, day);
+              if (dayDiff === 0 && dayMap.get(day).has(activityType)) {
+                streak++;
+                expectedDay = new Date(Date.parse(day + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
+              } else if (dayDiff === 0) {
+                // Day exists but doesn't have this activity type - streak broken
+                break;
+              } else {
+                // Gap in days - streak broken
+                break;
+              }
+            }
+            return streak;
+          };
+
+          runStreak = calculateTypeStreak('Run');
+          gymStreak = calculateTypeStreak('WeightTraining');
+          // For "other", count days with activities that aren't Run or WeightTraining
+          let otherExpectedDay = mostRecentDay;
+          for (const day of sortedDays) {
+            const dayDiff = daysBetween(otherExpectedDay, day);
+            const types = dayMap.get(day);
+            const hasOther = Array.from(types).some(t => t !== 'Run' && t !== 'WeightTraining');
+            
+            if (dayDiff === 0 && hasOther) {
+              otherStreak++;
+              otherExpectedDay = new Date(Date.parse(day + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
+            } else if (dayDiff === 0) {
+              break;
+            } else {
+              break;
+            }
+          }
+        }
+      }
     }
 
     // 3️⃣ Format response
@@ -148,6 +186,7 @@ export async function onRequest(context) {
       heartRate: latest.average_heartrate || "N/A",
       date: latest.start_date_local,
       polyline: polyline,
+      totalStreak: totalStreak,
       runStreak: runStreak,
       gymStreak: gymStreak,
       otherStreak: otherStreak,
