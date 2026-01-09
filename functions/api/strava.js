@@ -98,14 +98,21 @@ export async function onRequest(context) {
         return Math.floor((Date.parse(aStr + 'T00:00:00Z') - Date.parse(bStr + 'T00:00:00Z')) / 86400000);
       };
 
-      // Group activities by date and track which types occurred on each day
-      const dayMap = new Map(); // date -> Set of activity types
+      // Normalize activity types: treat VirtualRun as Run
+      const normalizeType = (type) => {
+        if (type === 'Run' || type === 'VirtualRun') return 'Run';
+        if (type === 'WeightTraining') return 'Gym';
+        return 'Other';
+      };
+
+      // Group activities by date and track which normalized types occurred on each day
+      const dayMap = new Map(); // date -> Set of normalized activity types
       for (const activity of activities) {
         const day = (activity.start_date_local || '').slice(0, 10);
         if (!dayMap.has(day)) {
           dayMap.set(day, new Set());
         }
-        dayMap.get(day).add(activity.type);
+        dayMap.get(day).add(normalizeType(activity.type));
       }
 
       // Sort days in descending order
@@ -151,23 +158,8 @@ export async function onRequest(context) {
           };
 
           runStreak = calculateTypeStreak('Run');
-          gymStreak = calculateTypeStreak('WeightTraining');
-          // For "other", count days with activities that aren't Run or WeightTraining
-          let otherExpectedDay = mostRecentDay;
-          for (const day of sortedDays) {
-            const dayDiff = daysBetween(otherExpectedDay, day);
-            const types = dayMap.get(day);
-            const hasOther = Array.from(types).some(t => t !== 'Run' && t !== 'WeightTraining');
-            
-            if (dayDiff === 0 && hasOther) {
-              otherStreak++;
-              otherExpectedDay = new Date(Date.parse(day + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
-            } else if (dayDiff === 0) {
-              break;
-            } else {
-              break;
-            }
-          }
+          gymStreak = calculateTypeStreak('Gym');
+          otherStreak = calculateTypeStreak('Other');
         }
       }
     }
