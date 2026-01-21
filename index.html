@@ -228,7 +228,20 @@
         if (data.items && data.items.length > 0) {
           data.items.forEach(track => {
             const div = document.createElement('div');
-            div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
+            div.className = 'recent-track-item';
+            
+            // Create album art
+            const img = document.createElement('img');
+            img.src = track.album?.images?.[2]?.url || track.album?.images?.[0]?.url || 'no-music.png';
+            img.alt = track.album?.name || 'Album art';
+            img.className = 'mini-album-art';
+            
+            // Create text span
+            const text = document.createElement('span');
+            text.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
+            
+            div.appendChild(img);
+            div.appendChild(text);
             container.appendChild(div);
           });
         } else {
