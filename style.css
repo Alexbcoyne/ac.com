@@ -290,15 +290,9 @@ main.snap-scroll-container {
   align-items: start;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .music-grid {
-    grid-template-columns: 1fr 1fr; /* side by side on medium screens */
-  }
-}
-
-@media (min-width: 1200px) {
-  .music-grid {
-    grid-template-columns: 1fr 1fr 1fr; /* three columns on larger screens */
+    grid-template-columns: 1fr 1fr 1fr; /* three columns on desktop */
   }
 }
 
