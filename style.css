@@ -373,7 +373,8 @@ main.snap-scroll-container {
   cursor: pointer;
 }
 
-#topTracks {
+#topTracks,
+#recentTracks {
   display: flex;
   flex-direction: column;
   gap: 6px;
