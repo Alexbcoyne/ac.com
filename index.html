@@ -58,6 +58,12 @@
         </div>
       </div>
 
+      <!-- Recent Tracks Section -->
+      <div class="music-subsection" id="recent-tracks-section">
+        <h3>Last 5 Tracks</h3>
+        <div id="recentTracks">Loading...</div>
+      </div>
+
       <!-- Top Tracks Section -->
       <div class="music-subsection" id="top-tracks-section">
         <h3>Most Listens</h3>
@@ -233,6 +239,37 @@
         document.getElementById('topTracks').textContent = "Error loading top tracks";
       }
     }
+
+    // Load recent tracks
+    async function loadRecentTracks() {
+      try {
+        const res = await fetch('/api/spotify/recent-tracks');
+        const data = await res.json();
+
+        const container = document.getElementById('recentTracks');
+        container.innerHTML = '';
+
+        if (data.error) {
+          container.textContent = 'Error loading recent tracks: ' + (data.error || JSON.stringify(data));
+          return;
+        }
+
+        if (data.items && data.items.length > 0) {
+          data.items.forEach(item => {
+            const track = item.track;
+            const div = document.createElement('div');
+            div.textContent = `${track.name} — ${track.artists.map(a => a.name).join(', ')}`;
+            container.appendChild(div);
+          });
+        } else {
+          container.textContent = 'No recent tracks available';
+        }
+      } catch (err) {
+        console.error('Recent Tracks Error:', err);
+        document.getElementById('recentTracks').textContent = "Error loading recent tracks";
+      }
+    }
+
     // Slack ping rate-limiter helper (1 ping/hour max)
     function maybePingSlack(reason, details) {
       try {
@@ -505,7 +542,9 @@ function decodePolyline(str, precision = 5) {
   // Initial loads and intervals
   loadSpotify();
   updateTopTracks();
+  loadRecentTracks();
   setInterval(loadSpotify, 15000); // refresh every 15s
+  setInterval(loadRecentTracks, 60000); // refresh every minute
 
   // Theme toggling
   const themeToggle = document.querySelector('.theme-toggle');
@@ -601,6 +640,8 @@ function decodePolyline(str, precision = 5) {
       }
 
       updateTopTracks();
+      loadRecentTracks();
+      setInterval(loadRecentTracks, 60000); // refresh every minute
     } catch (e) {
       console.error('Initialization error:', e);
     }
