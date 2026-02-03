@@ -177,7 +177,7 @@ ${cells[6]} | ${cells[7]} | ${cells[8]}
     
     const message = {
       text: `🌎 *The World just played position ${position}* (${positionNames[position]})\n\n${boardText}\n*Your turn!* Reply with a number (0-8) to make your move.`,
-      channel: env.SLACK_CHANNEL_ID || '#general'
+      channel: env.SLACK_CHANNEL_ID || 'C0ACHERANSJ'
     };
     
     await fetch('https://slack.com/api/chat.postMessage', {
