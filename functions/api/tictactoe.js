@@ -180,11 +180,14 @@ ${cells[6]} | ${cells[7]} | ${cells[8]}
     
     const positionNames = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
     
-    const userMention = env.SLACK_USER_ID ? `<@${env.SLACK_USER_ID}>` : '';
+    const userMention = env.SLACK_USER_ID ? `<@${env.SLACK_USER_ID}> ` : '';
     
     const message = {
-      text: `${userMention} 🌎 *The World just played position ${position}* (${positionNames[position]})\n\n${boardText}\n*Your turn!* Reply with a number (0-8) to make your move.`,
-      channel: env.SLACK_CHANNEL_ID || 'C0ACHERANSJ'
+      text: `${userMention}🌎 *The World just played position ${position}* (${positionNames[position]})\n\n${boardText}\n*Your turn!* Reply with a number (0-8) to make your move.`,
+      channel: env.SLACK_CHANNEL_ID || 'C0ACHERANSJ',
+      link_names: true,
+      unfurl_links: false,
+      unfurl_media: false
     };
     
     const response = await fetch('https://slack.com/api/chat.postMessage', {
