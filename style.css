@@ -680,6 +680,90 @@ main.snap-scroll-container {
 }
 
 /* =========================================================
+   Tic-tac-toe Section
+   ========================================================= */
+.tictactoe-section {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-description {
+  text-align: center;
+  font-size: 0.95rem;
+  margin-bottom: var(--space-lg);
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.game-status {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.game-status p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.game-stats {
+  display: flex;
+  gap: var(--space-lg);
+  justify-content: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.tictactoe-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 350px;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.tictactoe-board .cell {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 3rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+}
+
+.tictactoe-board .cell:hover:not(:disabled) {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  transform: scale(1.05);
+}
+
+.tictactoe-board .cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.tictactoe-board .cell.x {
+  color: #ff2d6f;
+}
+
+.tictactoe-board .cell.o {
+  color: #0a84ff;
+}
+
+/* =========================================================
    Footer
    ========================================================= */
 .site-footer {

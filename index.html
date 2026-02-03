@@ -135,6 +135,35 @@
     </div>
   </div>
 
+  <!-- Tic-tac-toe Section -->
+  <div class="section tictactoe-section">
+    <h2>Alex vs The World</h2>
+    <p class="game-description">Challenge Alex to tic-tac-toe! Anyone can make the next move for The World. First come, first served.</p>
+    
+    <div class="game-container">
+      <div class="game-status">
+        <p id="gameStatus">Loading game...</p>
+        <div class="game-stats">
+          <span>Alex: <strong id="alexWins">0</strong></span>
+          <span>World: <strong id="worldWins">0</strong></span>
+          <span>Draws: <strong id="draws">0</strong></span>
+        </div>
+      </div>
+      
+      <div class="tictactoe-board" id="tictactoeBoard">
+        <button class="cell" data-pos="0"></button>
+        <button class="cell" data-pos="1"></button>
+        <button class="cell" data-pos="2"></button>
+        <button class="cell" data-pos="3"></button>
+        <button class="cell" data-pos="4"></button>
+        <button class="cell" data-pos="5"></button>
+        <button class="cell" data-pos="6"></button>
+        <button class="cell" data-pos="7"></button>
+        <button class="cell" data-pos="8"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- JS -->
   <script>
     // Ensure broken/missing album art falls back to the no-music placeholder
@@ -663,6 +692,124 @@ function decodePolyline(str, precision = 5) {
     }
   }
 
+  // =========================================================
+  // Tic-tac-toe Game Functions
+  // =========================================================
+  let currentGame = null;
+  let gamePolling = null;
+
+  async function initTicTacToe() {
+    // Initial load
+    await loadGameState();
+    
+    // Set up cell click handlers
+    document.querySelectorAll('.tictactoe-board .cell').forEach(cell => {
+      cell.addEventListener('click', () => handleCellClick(cell));
+    });
+    
+    // Poll for updates every 2 seconds
+    gamePolling = setInterval(loadGameState, 2000);
+  }
+
+  async function loadGameState() {
+    try {
+      const res = await fetch('/api/tictactoe');
+      const game = await res.json();
+      
+      if (game.error) {
+        document.getElementById('gameStatus').textContent = 'Error loading game';
+        return;
+      }
+      
+      currentGame = game;
+      renderGame(game);
+    } catch (err) {
+      console.error('Failed to load game:', err);
+      document.getElementById('gameStatus').textContent = 'Connection error';
+    }
+  }
+
+  function renderGame(game) {
+    // Update board
+    const cells = document.querySelectorAll('.tictactoe-board .cell');
+    cells.forEach((cell, index) => {
+      const value = game.board[index];
+      cell.textContent = value;
+      cell.className = 'cell';
+      if (value === 'X') cell.classList.add('x');
+      if (value === 'O') cell.classList.add('o');
+      
+      // Disable if cell is taken or not world's turn
+      cell.disabled = value !== '' || game.currentTurn !== 'world' || game.status !== 'active';
+    });
+    
+    // Update status
+    const statusEl = document.getElementById('gameStatus');
+    if (game.status === 'alexWon') {
+      statusEl.textContent = '🏆 Alex wins! Game will reset soon...';
+    } else if (game.status === 'worldWon') {
+      statusEl.textContent = '🌎 The World wins! Game will reset soon...';
+    } else if (game.status === 'draw') {
+      statusEl.textContent = '🤝 Draw! Game will reset soon...';
+    } else if (game.currentTurn === 'alex') {
+      statusEl.textContent = '⏳ Waiting for Alex to move...';
+    } else {
+      statusEl.textContent = '✨ Your turn! Click any empty cell to play for The World.';
+    }
+    
+    // Update stats
+    document.getElementById('alexWins').textContent = game.stats.alexWins;
+    document.getElementById('worldWins').textContent = game.stats.worldWins;
+    document.getElementById('draws').textContent = game.stats.draws;
+    
+    // Auto-reset after game ends
+    if (game.status !== 'active' && !game.resetScheduled) {
+      setTimeout(async () => {
+        await fetch('/api/tictactoe/reset', { method: 'POST' });
+        loadGameState();
+      }, 10000);
+      game.resetScheduled = true;
+    }
+  }
+
+  async function handleCellClick(cell) {
+    const position = parseInt(cell.dataset.pos);
+    
+    if (!currentGame || currentGame.currentTurn !== 'world' || currentGame.status !== 'active') {
+      return;
+    }
+    
+    if (currentGame.board[position] !== '') {
+      return;
+    }
+    
+    // Disable all cells temporarily
+    document.querySelectorAll('.tictactoe-board .cell').forEach(c => c.disabled = true);
+    
+    try {
+      const res = await fetch('/api/tictactoe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position })
+      });
+      
+      const game = await res.json();
+      
+      if (game.error) {
+        alert(game.error);
+        await loadGameState(); // Reload to get correct state
+        return;
+      }
+      
+      currentGame = game;
+      renderGame(game);
+    } catch (err) {
+      console.error('Failed to make move:', err);
+      alert('Failed to make move. Please try again.');
+      await loadGameState();
+    }
+  }
+
   // Main initialization (clean, with safety checks)
   function safeInit() {
     try {
@@ -681,6 +828,9 @@ function decodePolyline(str, precision = 5) {
       updateTopTracks();
       loadRecentTracks();
       setInterval(loadRecentTracks, 60000); // refresh every minute
+      
+      // Initialize tic-tac-toe game
+      initTicTacToe();
     } catch (e) {
       console.error('Initialization error:', e);
     }
