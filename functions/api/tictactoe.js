@@ -98,11 +98,12 @@ async function makeMove(request, env) {
     await env.TICTACTOE_KV.put('current_game', JSON.stringify(game));
     
     // Send Slack notification (if not game over)
+    let slackStatus = 'skipped';
     if (game.status === 'active') {
-      await notifySlack(env, position);
+      slackStatus = await notifySlack(env, position);
     }
     
-    return new Response(JSON.stringify(game), {
+    return new Response(JSON.stringify({ ...game, slackStatus }), {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (err) {
@@ -151,6 +152,10 @@ function checkGameResult(board) {
 // Send Slack notification
 async function notifySlack(env, position) {
   try {
+    if (!env.SLACK_BOT_TOKEN) {
+      return 'error: SLACK_BOT_TOKEN not configured';
+    }
+    
     // Get current game to show board
     const gameData = await env.TICTACTOE_KV.get('current_game');
     const game = gameData ? JSON.parse(gameData) : null;
@@ -180,7 +185,7 @@ ${cells[6]} | ${cells[7]} | ${cells[8]}
       channel: env.SLACK_CHANNEL_ID || 'C0ACHERANSJ'
     };
     
-    await fetch('https://slack.com/api/chat.postMessage', {
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -188,7 +193,15 @@ ${cells[6]} | ${cells[7]} | ${cells[8]}
       },
       body: JSON.stringify(message)
     });
+    
+    const result = await response.json();
+    
+    if (!result.ok) {
+      return `error: ${result.error}`;
+    }
+    
+    return 'sent';
   } catch (err) {
-    console.error('Failed to send Slack notification:', err);
+    return `error: ${err.message}`;
   }
 }
