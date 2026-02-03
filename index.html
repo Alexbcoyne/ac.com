@@ -707,8 +707,8 @@ function decodePolyline(str, precision = 5) {
       cell.addEventListener('click', () => handleCellClick(cell));
     });
     
-    // Poll for updates every 2 seconds
-    gamePolling = setInterval(loadGameState, 2000);
+    // Poll for updates every 30 seconds
+    gamePolling = setInterval(loadGameState, 30000);
   }
 
   async function loadGameState() {
