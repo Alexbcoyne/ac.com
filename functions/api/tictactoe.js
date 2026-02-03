@@ -151,10 +151,32 @@ function checkGameResult(board) {
 // Send Slack notification
 async function notifySlack(env, position) {
   try {
+    // Get current game to show board
+    const gameData = await env.TICTACTOE_KV.get('current_game');
+    const game = gameData ? JSON.parse(gameData) : null;
+    
+    let boardText = '';
+    if (game) {
+      // Create visual board
+      const cells = game.board.map((cell, i) => {
+        if (cell === 'X') return 'X';
+        if (cell === 'O') return 'O';
+        return i.toString(); // Show position number
+      });
+      
+      boardText = `\`\`\`
+${cells[0]} | ${cells[1]} | ${cells[2]}
+---------
+${cells[3]} | ${cells[4]} | ${cells[5]}
+---------
+${cells[6]} | ${cells[7]} | ${cells[8]}
+\`\`\``;
+    }
+    
     const positionNames = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
     
     const message = {
-      text: `🌎 *The World just moved!*\nPosition: ${positionNames[position]} (${position})\n\nYour turn, Alex! Reply with your move.`,
+      text: `🌎 *The World just played position ${position}* (${positionNames[position]})\n\n${boardText}\n*Your turn!* Reply with a number (0-8) to make your move.`,
       channel: env.SLACK_CHANNEL_ID || '#general'
     };
     
