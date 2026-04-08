@@ -161,17 +161,11 @@
       <p>This is a simple demo to test uptime monitoring. Toggle the status using your browser console:</p>
 
       <div class="console-commands">
-        <p><strong>To simulate downtime:</strong></p>
-        <div class="command-example">serviceDown()</div>
-
-        <p><strong>To bring service back up:</strong></p>
-        <div class="command-example">serviceUp()</div>
-
         <p><strong>To toggle status:</strong></p>
-        <div class="command-example">toggleService()</div>
+        <div class="command-example">toggleStatus()</div>
 
         <p><strong>To check current status:</strong></p>
-        <div class="command-example">getStatus()</div>
+        <div class="command-example">checkStatus()</div>
       </div>
     </div>
 
@@ -179,72 +173,72 @@
   </div>
 
   <script>
-    const STATUS_KEY = 'ac_service_down';
+    const HEALTH_CHECK_URL = '/api/health-check';
+    const TOGGLE_URL = '/api/health-check-toggle';
 
-    // Initialize status display
-    function updateDisplay() {
-      const isDown = localStorage.getItem(STATUS_KEY) === 'true';
-      const display = document.getElementById('statusDisplay');
-      const icon = document.getElementById('statusIcon');
-      const text = document.getElementById('statusText');
-      const time = document.getElementById('statusTime');
+    // Update display based on actual API response
+    async function updateDisplay() {
+      try {
+        const res = await fetch(HEALTH_CHECK_URL);
+        const data = await res.json();
+        const display = document.getElementById('statusDisplay');
+        const icon = document.getElementById('statusIcon');
+        const text = document.getElementById('statusText');
+        const time = document.getElementById('statusTime');
 
-      if (isDown) {
-        display.classList.remove('up');
-        display.classList.add('down');
-        icon.textContent = '❌';
-        text.textContent = 'DOWN';
-      } else {
-        display.classList.remove('down');
-        display.classList.add('up');
-        icon.textContent = '✅';
-        text.textContent = 'UP';
+        if (res.ok && data.status === 'up') {
+          display.classList.remove('down');
+          display.classList.add('up');
+          icon.textContent = '✅';
+          text.textContent = 'UP';
+        } else {
+          display.classList.remove('up');
+          display.classList.add('down');
+          icon.textContent = '❌';
+          text.textContent = 'DOWN';
+        }
+
+        time.textContent = new Date().toLocaleTimeString();
+      } catch (err) {
+        document.getElementById('statusDisplay').classList.add('down');
+        document.getElementById('statusIcon').textContent = '⚠️';
+        document.getElementById('statusText').textContent = 'ERROR';
+        console.error('Failed to check status:', err);
       }
-
-      time.textContent = new Date().toLocaleTimeString();
     }
 
     // Console commands
-    window.serviceDown = function() {
-      localStorage.setItem(STATUS_KEY, 'true');
-      updateDisplay();
-      console.log('✅ Service set to DOWN');
-    };
-
-    window.serviceUp = function() {
-      localStorage.removeItem(STATUS_KEY);
-      updateDisplay();
-      console.log('✅ Service set to UP');
-    };
-
-    window.toggleService = function() {
-      const isDown = localStorage.getItem(STATUS_KEY) === 'true';
-      if (isDown) {
-        window.serviceUp();
-      } else {
-        window.serviceDown();
+    window.toggleStatus = async function() {
+      try {
+        const res = await fetch(TOGGLE_URL, { method: 'POST' });
+        const data = await res.json();
+        console.log(`✅ Status toggled: ${data.currentStatus.toUpperCase()}`);
+        await updateDisplay();
+      } catch (err) {
+        console.error('Failed to toggle status:', err);
       }
     };
 
-    window.getStatus = function() {
-      const isDown = localStorage.getItem(STATUS_KEY) === 'true';
-      console.log(`Current status: ${isDown ? 'DOWN' : 'UP'}`);
-      return isDown ? 'DOWN' : 'UP';
+    window.checkStatus = async function() {
+      try {
+        const res = await fetch(HEALTH_CHECK_URL);
+        const data = await res.json();
+        console.log(`Current status: ${data.status.toUpperCase()} (HTTP ${res.status})`);
+        return data.status;
+      } catch (err) {
+        console.error('Failed to check status:', err);
+      }
     };
 
-    // Initial display
+    // Initial display and update every 2 seconds
     updateDisplay();
-
-    // Update time every second
-    setInterval(updateDisplay, 1000);
+    setInterval(updateDisplay, 2000);
 
     // Log helper message
     console.log('%c✨ AC.com Health Check Demo ✨', 'font-size: 16px; font-weight: bold; color: #007bff;');
     console.log('Available commands:');
-    console.log('  • serviceDown()  - Simulate service downtime');
-    console.log('  • serviceUp()    - Bring service back online');
-    console.log('  • toggleService() - Toggle current status');
-    console.log('  • getStatus()    - Check current status');
+    console.log('  • toggleStatus() - Toggle service status');
+    console.log('  • checkStatus()  - Check current HTTP status');
   </script>
 </body>
 </html>
