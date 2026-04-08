@@ -161,6 +161,12 @@
       <p>This is a simple demo to test uptime monitoring. Toggle the status using your browser console:</p>
 
       <div class="console-commands">
+        <p><strong>To set DOWN:</strong></p>
+        <div class="command-example">setDown()</div>
+
+        <p><strong>To set UP:</strong></p>
+        <div class="command-example">setUp()</div>
+
         <p><strong>To toggle status:</strong></p>
         <div class="command-example">toggleStatus()</div>
 
@@ -175,6 +181,16 @@
   <script>
     const HEALTH_CHECK_URL = '/api/health-check';
     const TOGGLE_URL = '/api/health-check-toggle';
+
+    async function setStatus(state) {
+      const res = await fetch(`${TOGGLE_URL}?state=${state}`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to set status');
+      }
+      console.log(`Status is now ${data.currentStatus.toUpperCase()} (storage: ${data.storage})`);
+      return data;
+    }
 
     // Update display based on actual API response
     async function updateDisplay() {
@@ -208,10 +224,27 @@
     }
 
     // Console commands
+    window.setDown = async function() {
+      try {
+        await setStatus('down');
+        await updateDisplay();
+      } catch (err) {
+        console.error('Failed to set DOWN:', err);
+      }
+    };
+
+    window.setUp = async function() {
+      try {
+        await setStatus('up');
+        await updateDisplay();
+      } catch (err) {
+        console.error('Failed to set UP:', err);
+      }
+    };
+
     window.toggleStatus = async function() {
       try {
-        const res = await fetch(TOGGLE_URL, { method: 'POST' });
-        const data = await res.json();
+        const data = await setStatus('toggle');
         console.log(`✅ Status toggled: ${data.currentStatus.toUpperCase()}`);
         await updateDisplay();
       } catch (err) {
@@ -237,6 +270,8 @@
     // Log helper message
     console.log('%c✨ AC.com Health Check Demo ✨', 'font-size: 16px; font-weight: bold; color: #007bff;');
     console.log('Available commands:');
+    console.log('  • setDown()      - Force service to DOWN (HTTP 503)');
+    console.log('  • setUp()        - Force service to UP (HTTP 200)');
     console.log('  • toggleStatus() - Toggle service status');
     console.log('  • checkStatus()  - Check current HTTP status');
     console.log('External test URL for non-200: /api/health-check?force=down');

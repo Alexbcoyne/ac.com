@@ -1,3 +1,19 @@
+let memoryState = 'up';
+
+async function getStoredState(context) {
+  const kv = context.env?.HEALTH_TOGGLE_KV;
+  if (kv && typeof kv.get === 'function') {
+    const value = await kv.get('site-status');
+    if (value === 'down' || value === 'up') {
+      return { state: value, source: 'kv' };
+    }
+    return { state: 'up', source: 'kv-default' };
+  }
+
+  // Fallback for local/testing when KV binding is not configured.
+  return { state: memoryState, source: 'memory' };
+}
+
 export async function onRequest(context) {
   const request = context.request;
   const url = new URL(request.url);
@@ -42,15 +58,14 @@ export async function onRequest(context) {
     );
   }
 
-  // Cookie-based simulation for browser demo page toggle.
-  const cookie = request.headers.get('Cookie') || '';
-  const isServiceDown = cookie.includes('ac_demo_down=true');
+  const stored = await getStoredState(context);
+  const isServiceDown = stored.state === 'down';
 
   if (isServiceDown) {
     return new Response(
       JSON.stringify({
         status: 'down',
-        source: 'cookie',
+        source: stored.source,
         message: 'Service temporarily unavailable',
         timestamp: new Date().toISOString()
       }),
@@ -68,7 +83,7 @@ export async function onRequest(context) {
   return new Response(
     JSON.stringify({
       status: 'up',
-      source: 'default',
+      source: stored.source,
       timestamp: new Date().toISOString()
     }),
     {

@@ -1,8 +1,32 @@
+let memoryState = 'up';
+
+async function getStoredState(context) {
+  const kv = context.env?.HEALTH_TOGGLE_KV;
+  if (kv && typeof kv.get === 'function') {
+    const value = await kv.get('site-status');
+    if (value === 'down' || value === 'up') {
+      return { state: value, source: 'kv' };
+    }
+    return { state: 'up', source: 'kv-default' };
+  }
+
+  return { state: memoryState, source: 'memory' };
+}
+
+async function setStoredState(context, state) {
+  const kv = context.env?.HEALTH_TOGGLE_KV;
+  if (kv && typeof kv.put === 'function') {
+    await kv.put('site-status', state);
+    return 'kv';
+  }
+
+  memoryState = state;
+  return 'memory';
+}
+
 export async function onRequest(context) {
   const request = context.request;
-  const cookie = request.headers.get('Cookie') || '';
-  const isDown = cookie.includes('ac_demo_down=true');
-  const nextIsDown = !isDown;
+  const url = new URL(request.url);
 
   // Only allow POST requests
   if (request.method !== 'POST' && request.method !== 'GET') {
@@ -12,19 +36,38 @@ export async function onRequest(context) {
     );
   }
 
+  const current = await getStoredState(context);
+  const action = (url.searchParams.get('state') || 'toggle').toLowerCase();
+  let nextState = current.state;
+
+  if (action === 'down') {
+    nextState = 'down';
+  } else if (action === 'up') {
+    nextState = 'up';
+  } else if (action === 'toggle') {
+    nextState = current.state === 'down' ? 'up' : 'down';
+  } else {
+    return new Response(
+      JSON.stringify({ error: "Invalid state. Use 'up', 'down', or 'toggle'." }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const writtenTo = await setStoredState(context, nextState);
+
   return new Response(
     JSON.stringify({
-      message: 'Status toggled',
-      previousStatus: isDown ? 'down' : 'up',
-      currentStatus: nextIsDown ? 'down' : 'up',
+      message: 'Status updated',
+      previousStatus: current.state,
+      currentStatus: nextState,
+      storage: writtenTo,
       timestamp: new Date().toISOString()
     }),
     {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Set-Cookie': `ac_demo_down=${nextIsDown ? 'true' : 'false'}; Path=/; Max-Age=86400; SameSite=Lax`
+        'Access-Control-Allow-Origin': '*'
       }
     }
   );
