@@ -1,18 +1,4 @@
-let memoryState = 'up';
-
-async function getStoredState(context) {
-  const kv = context.env?.HEALTH_TOGGLE_KV;
-  if (kv && typeof kv.get === 'function') {
-    const value = await kv.get('site-status');
-    if (value === 'down' || value === 'up') {
-      return { state: value, source: 'kv' };
-    }
-    return { state: 'up', source: 'kv-default' };
-  }
-
-  // Fallback for local/testing when KV binding is not configured.
-  return { state: memoryState, source: 'memory' };
-}
+import { getHealthState } from './health-state-store.js';
 
 export async function onRequest(context) {
   const request = context.request;
@@ -58,7 +44,7 @@ export async function onRequest(context) {
     );
   }
 
-  const stored = await getStoredState(context);
+  const stored = await getHealthState(context);
   const isServiceDown = stored.state === 'down';
 
   if (isServiceDown) {

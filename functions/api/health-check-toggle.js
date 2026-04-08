@@ -1,28 +1,4 @@
-let memoryState = 'up';
-
-async function getStoredState(context) {
-  const kv = context.env?.HEALTH_TOGGLE_KV;
-  if (kv && typeof kv.get === 'function') {
-    const value = await kv.get('site-status');
-    if (value === 'down' || value === 'up') {
-      return { state: value, source: 'kv' };
-    }
-    return { state: 'up', source: 'kv-default' };
-  }
-
-  return { state: memoryState, source: 'memory' };
-}
-
-async function setStoredState(context, state) {
-  const kv = context.env?.HEALTH_TOGGLE_KV;
-  if (kv && typeof kv.put === 'function') {
-    await kv.put('site-status', state);
-    return 'kv';
-  }
-
-  memoryState = state;
-  return 'memory';
-}
+import { getHealthState, setHealthState } from './health-state-store.js';
 
 export async function onRequest(context) {
   const request = context.request;
@@ -36,7 +12,7 @@ export async function onRequest(context) {
     );
   }
 
-  const current = await getStoredState(context);
+  const current = await getHealthState(context);
   const action = (url.searchParams.get('state') || 'toggle').toLowerCase();
   let nextState = current.state;
 
@@ -53,7 +29,7 @@ export async function onRequest(context) {
     );
   }
 
-  const writtenTo = await setStoredState(context, nextState);
+  const writtenTo = await setHealthState(context, nextState);
 
   return new Response(
     JSON.stringify({
