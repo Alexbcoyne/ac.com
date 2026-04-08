@@ -169,7 +169,7 @@
       </div>
     </div>
 
-    <button onclick="toggleService()">Toggle Status</button>
+    <button onclick="toggleStatus()">Toggle Status</button>
   </div>
 
   <script>
@@ -223,7 +223,7 @@
       try {
         const res = await fetch(HEALTH_CHECK_URL);
         const data = await res.json();
-        console.log(`Current status: ${data.status.toUpperCase()} (HTTP ${res.status})`);
+        console.log(`Current status: ${data.status.toUpperCase()} (HTTP ${res.status}, source: ${data.source || 'unknown'})`);
         return data.status;
       } catch (err) {
         console.error('Failed to check status:', err);
@@ -239,6 +239,7 @@
     console.log('Available commands:');
     console.log('  • toggleStatus() - Toggle service status');
     console.log('  • checkStatus()  - Check current HTTP status');
+    console.log('External test URL for non-200: /api/health-check?force=down');
   </script>
 </body>
 </html>
