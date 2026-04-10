@@ -79,51 +79,6 @@
       opacity: 0.8;
     }
 
-    .instructions {
-      background: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .instructions h3 {
-      margin-bottom: 10px;
-      font-size: 14px;
-      color: #333;
-    }
-
-    code {
-      background: #f0f0f0;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: 'Monaco', 'Courier New', monospace;
-      font-size: 12px;
-    }
-
-    .console-commands {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #ddd;
-    }
-
-    .console-commands p {
-      margin-bottom: 8px;
-    }
-
-    .command-example {
-      background: #f0f0f0;
-      padding: 8px;
-      border-radius: 4px;
-      font-family: 'Monaco', 'Courier New', monospace;
-      font-size: 12px;
-      margin-top: 5px;
-      word-break: break-all;
-      color: #d63384;
-    }
-
     button {
       width: 100%;
       padding: 12px;
@@ -154,25 +109,6 @@
       <div class="status-icon" id="statusIcon">✅</div>
       <div class="status-text" id="statusText">UP</div>
       <div class="status-time" id="statusTime"></div>
-    </div>
-
-    <div class="instructions">
-      <h3>📋 Instructions</h3>
-      <p>This is a simple demo to test uptime monitoring. Toggle the status using your browser console:</p>
-
-      <div class="console-commands">
-        <p><strong>To set DOWN:</strong></p>
-        <div class="command-example">setDown()</div>
-
-        <p><strong>To set UP:</strong></p>
-        <div class="command-example">setUp()</div>
-
-        <p><strong>To toggle status:</strong></p>
-        <div class="command-example">toggleStatus()</div>
-
-        <p><strong>To check current status:</strong></p>
-        <div class="command-example">checkStatus()</div>
-      </div>
     </div>
 
     <button onclick="toggleStatus()">Toggle Status</button>
