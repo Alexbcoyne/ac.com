@@ -1,8 +1,8 @@
 const STATE_KEY = 'site-status';
 
-function buildCacheKey(requestUrl) {
-  const url = new URL(requestUrl);
-  return new Request(`${url.origin}/__internal/health-state`);
+function buildCacheKey() {
+  // Use a static URL so the cache key is consistent across all endpoints
+  return new Request('http://internal/__health-state');
 }
 
 export async function getHealthState(context) {
@@ -17,7 +17,7 @@ export async function getHealthState(context) {
   }
 
   if (typeof caches !== 'undefined' && caches.default) {
-    const cacheKey = buildCacheKey(context.request.url);
+    const cacheKey = buildCacheKey();
     const cached = await caches.default.match(cacheKey);
     if (cached) {
       const value = await cached.text();
@@ -43,7 +43,7 @@ export async function setHealthState(context, state) {
   }
 
   if (typeof caches !== 'undefined' && caches.default) {
-    const cacheKey = buildCacheKey(context.request.url);
+    const cacheKey = buildCacheKey();
     const response = new Response(state, {
       headers: {
         'Cache-Control': 'max-age=86400'
